@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Font -->
+    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 
@@ -18,200 +18,213 @@
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <!-- ================= HEADER ================= -->
+    <!-- ================= HEADER ================= -->
 
-        <section class="hero">
+    <section class="hero">
+
+        <div>
+
+            <h1>🚀 Welcome Back, Coder!</h1>
+
+            <p>
+                Submit your daily DSA progress and flex your consistency.
+            </p>
+
+        </div>
+
+        <div class="dayBadge">
+
+            🔥 Day N
+
+        </div>
+
+    </section>
+
+    <!-- ================= TODAY'S CHALLENGE ================= -->
+
+    <section class="challengeCard">
+
+        <div class="challengeLeft">
+
+            <h2>🎯 DSA Challenge</h2>
+
+            <p>
+                Solve today's problem and submit your solution before the day ends.
+                <br>
+                One problem closer to greatness.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- ================= SUBMISSION FORM ================= -->
+
+    <section class="formCard">
+
+        <div class="field">
+
+            <label>👤 Profile</label>
+
+            <input
+                type="text"
+                id="profile"
+                placeholder="Enter your name">
+
+        </div>
+
+        <div class="field">
+
+            <label>📘 Problem Name</label>
+
+            <input
+                type="text"
+                id="problem"
+                placeholder="Example : Two Sum">
+
+        </div>
+
+        <div class="field">
+
+            <label>📅 Day</label>
+
+            <input
+                type="text"
+                id="day"
+                placeholder="Day 1">
+
+        </div>
+
+        <div class="field">
+
+            <label>⚡ Difficulty</label>
+
+            <select id="difficulty">
+
+                <option>🟢 Easy</option>
+                <option>🟡 Medium</option>
+                <option>🔴 Hard</option>
+
+            </select>
+
+        </div>
+
+        <div class="field">
+
+            <label>🔗 Submission URL</label>
+
+            <input
+                type="url"
+                id="url"
+                placeholder="https://leetcode.com/...">
+
+        </div>
+
+        <button onclick="submitData()">
+
+            🚀 Submit Challenge
+
+        </button>
+
+        <div id="status">
+
+            💪 Today's Challenge Status!
+
+        </div>
+
+    </section>
+
+    <!-- ================= TEAM PROGRESS ================= -->
+
+    <section class="recent">
+
+        <div class="recentHeader">
 
             <div>
 
-                <h1>🚀 Welcome Back, Coder!</h1>
+                <h2>🏆 Team Progress</h2>
+
+                <p>See everyone's progress at a glance.</p>
+
+            </div>
+
+            <a
+                href="https://docs.google.com/spreadsheets/d/16SlnfZ3PMCWwVyfHpgxNMC72RjbYTeeCwLmZGrmtTf0/edit?usp=sharing"
+                target="_blank"
+                rel="noopener">
+
+                📄 View Full Sheet
+
+            </a>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>👤 Profile</th>
+                    <th>✅ Problems Submitted</th>
+                    <th>📅 Today's Status</th>
+                    <th>🕒 Last Submission</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="submissionTable">
+
+                <!-- Filled automatically by JavaScript -->
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="footer">
+
+        <div class="footer-content">
+
+            <div class="footer-left">
 
                 <p>
-                    Submit your daily DSA progress and flex your consistency.
+
+                    Track • Solve • Improve • Repeat
+
                 </p>
 
             </div>
 
-            <div class="dayBadge">
-
-                🔥 Day N
-
-            </div>
-
-        </section>
-
-        <!-- ================= TODAY'S CHALLENGE ================= -->
-
-        <section class="challengeCard">
-
-            <div class="challengeLeft">
-
-                <h2>🎯DSA Challenge</h2>
+            <div class="footer-right">
 
                 <p>
-                    Solve today's problem and submit your solution before the day ends.
-                    One problem closer to greatness.
+
+                    Built for Consistency 💪
+
                 </p>
 
             </div>
 
-        </section>
+        </div>
 
-        <!-- ================= FORM ================= -->
+        <div class="footer-bottom">
 
-        <section class="formCard">
-            <div class="field">
+            Made with ❤️ for <strong>NAKAMA VOYAGE</strong> | © 2026
 
-                <label>👤 Profile</label>
+        </div>
 
-                <input
-                    type="text"
-                    id="profile"
-                    placeholder="Enter your name">
+    </footer>
 
-            </div>
+</div>
 
-            <div class="field">
-
-                <label>📘 Problem Name</label>
-
-                <input
-                    type="text"
-                    id="problem"
-                    placeholder="Example : Two Sum">
-
-            </div>
-
-            <div class="field">
-
-                <label>📅 Day</label>
-
-                <input
-                    type="text"
-                    id="day"
-                    placeholder="Day 1">
-
-            </div>
-
-            <div class="field">
-
-                <label>⚡ Difficulty</label>
-
-                <select id="difficulty">
-
-                    <option>🟢 Easy</option>
-                    <option>🟡 Medium</option>
-                    <option>🔴 Hard</option>
-
-                </select>
-
-            </div>
-
-            <div class="field">
-
-                <label>🔗 Submission URL</label>
-
-                <input
-                    type="url"
-                    id="url"
-                    placeholder="https://leetcode.com/...">
-
-            </div>
-
-            <button onclick="submitData()">
-
-                🚀 Submit Challenge
-
-            </button>
-
-            <div id="status">
-
-                💪today's challenge status!
-
-            </div>
-
-        </section>
-
-        <!-- ================= RECENT SUBMISSIONS ================= -->
-
-        <section class="recent">
-
-            <div class="recentHeader">
-
-                <h2>📜 Recent Submissions</h2>
-                <h3><a href="https://docs.google.com/spreadsheets/d/16SlnfZ3PMCWwVyfHpgxNMC72RjbYTeeCwLmZGrmtTf0/edit?usp=sharing">Check Your Submission Data Here</a></h3>
-
-            </div>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>👤 Profile</th>
-                        <th>📘 Problem</th>
-                        <th>📅 Day</th>
-                        <th>⚡ Difficulty</th>
-                        <th>🕒 Time</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="submissionTable">
-
-                    <tr>
-
-                        <td>Demo</td>
-                        <td>Two Sum</td>
-                        <td>Day i</td>
-                        <td>🟢 Easy</td>
-                        <td>00.00 </td>
-
-                    </tr>
-
-                </tbody>
-
-                
-
-            </table>
-
-        </section>
-
-        <!-- ================= FOOTER ================= -->
-
-        <footer class="footer">
-
-            <div class="footer-content">
-
-                <div class="footer-left">
-
-                    <p>
-                        Track • Solve • Improve • Repeat
-                    </p>
-
-                </div>
-
-                <div class="footer-right">
-                    <p>Built for Consistency</p>
-                </div>
-
-            </div>
-
-            <div class="footer-bottom">
-
-                Made with ❤️ for <strong>NAKAMA VOYAGE</strong> | © 2026
-
-            </div>
-
-        </footer>
-
-    </div>
-
-    <script src="script.js"></script>
+<script src="script.js"></script>
 
 </body>
 

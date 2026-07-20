@@ -63,39 +63,76 @@ async function submitData() {
 // LOAD TABLE
 // ============================================
 
-async function loadSubmissions(){
+function loadSubmissions() {
 
-    try{
+    fetch(WEB_APP_URL)
 
-        const res = await fetch(WEB_APP_URL);
+    .then(response => response.json())
 
-        const data = await res.json();
+    .then(data => {
 
         const table = document.getElementById("submissionTable");
 
         table.innerHTML = "";
 
-        data.forEach(row=>{
+        const members = {};
 
-            table.innerHTML += `
-            <tr>
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-                <td>${row[5]}</td>
-            </tr>
-            `;
+        // Count submissions and store latest submission
+        data.forEach(row => {
+
+            const profile = row[0];
+            const day = row[2];
+            const time = row[5];
+
+            if (!members[profile]) {
+
+                members[profile] = {
+                    total: 0,
+                    lastDay: day,
+                    lastTime: time
+                };
+
+            }
+
+            members[profile].total++;
+
+            members[profile].lastDay = day;
+            members[profile].lastTime = time;
 
         });
 
-    }
+        // Today's challenge day
+        const todayDay = document.getElementById("day").value.trim();
 
-    catch(err){
+        Object.keys(members).forEach(profile => {
 
-        console.error("Table Load Error:",err);
+            const member = members[profile];
 
-    }
+            const status =
+                member.lastDay === todayDay
+                ? "✅ Submitted"
+                : "❌ Pending";
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${profile}</td>
+                <td>${member.total}</td>
+                <td>${status}</td>
+                <td>${member.lastTime}</td>
+            `;
+
+            table.appendChild(tr);
+
+        });
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+    });
 
 }
 
