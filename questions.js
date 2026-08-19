@@ -1,0 +1,43 @@
+// Add the names of the problems posted here. 
+// The system will check user submissions against this list to calculate missing problems.
+// Make sure the problem names match exactly (case-insensitive) with what users submit.
+
+const postedQuestions = [
+    "Remove Duplicates from Sorted Array",
+    "Two Sum",
+    "Majority Element",
+    "Find Pivot Index",
+    "Best Time to Buy and Sell Stock",
+    "Single Number",
+    "Search Insert Position",
+    "Pascal's Triangle",
+    "Pow(x,n)",
+    "Maximum Subarray",
+    "Product of Array Except Self",
+    "Sort Colors",
+    "Container With Most Water",
+    "Move Zeroes",
+    "Subarray Sum Equals K",
+    "Maximum Average Subarray I",
+    "Max Consecutive Ones III",
+    "3Sum",
+    "3Sum Closest",
+    "4Sum",
+    "Search a 2D Matrix",
+    "Search a 2D Matrix II",
+    "Spiral Matrix",
+    "Valid Anagram",
+    "First Unique Character in a String",
+    "Reverse String",
+    "Reverse Vowels of a String",
+    "Length of Last Word",
+    "Isomorphic Strings",
+    "Word Pattern",
+    "Valid Parentheses",
+    "Detect Capital",
+    "Find the Index of the First Occurrence in a String",
+    "Ransom Note",
+    "Longest Common Prefix",
+    "Merge Strings Alternately",
+    "Valid Palindrome"
+];
