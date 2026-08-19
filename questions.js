@@ -4,8 +4,6 @@
 // Make sure the problem names match exactly (case-insensitive) with what users submit.
 
 const allQuestions = [
-    "Remove Duplicates from Sorted Array",
-    "Two Sum",
     "Majority Element",
     "Find Pivot Index",
     "Best Time to Buy and Sell Stock",
@@ -51,7 +49,37 @@ const allQuestions = [
     "Palindromic Substrings",
     "Longest Repeating Character Replacement",
     "Decode String",
-    "Minimum Window Substring"
+    "Minimum Window Substring",
+    "Merge Sorted Array",
+    "Add Strings",
+    "Binary Search",
+    "Missing Number",
+    "Is Subsequence",
+    "First Bad Version",
+    "Intersection of Two Arrays II",
+    "Longest Palindrome",
+    "Find Smallest Letter Greater Than Target",
+    "Find All Numbers Disappeared in an Array",
+    "Repeated Substring Pattern",
+    "Find First and Last Position of Element in Sorted Array",
+    "Find the Duplicate Number",
+    "Reverse Words in a String",
+    "Search in Rotated Sorted Array",
+    "Set Matrix Zeroes",
+    "String Compression",
+    "Find Minimum in Rotated Sorted Array",
+    "Rotate Image",
+    "Group Anagrams",
+    "Search in Rotated Sorted Array II",
+    "Merge Intervals",
+    "Find All Anagrams in a String",
+    "Find Peak Element",
+    "Insert Interval",
+    "Basic Calculator II",
+    "Sqrt(x)",
+    "Non-overlapping Intervals",
+    "Longest Substring with At Most Two Distinct Characters",
+    "Koko Eating Bananas",
 ];
 
 // The first 37 questions are already posted and will always be visible.
@@ -65,29 +93,27 @@ const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
 const FUTURE_START_DATE = "2026-08-20";
 
 function appendDailyQuestions() {
-    const startDate = new Date(FUTURE_START_DATE);
+    const startDate = new Date(`${FUTURE_START_DATE}T00:00:00`);
     const today = new Date();
 
-    // Normalize both dates to midnight to avoid time-of-day timezone issues
-    startDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
-    // Calculate the difference in time
     const diffTime = today.getTime() - startDate.getTime();
+    const daysSinceStart = Math.floor(
+        diffTime / (1000 * 60 * 60 * 24)
+    );
 
-    // Calculate the difference in days (+1 so the start date itself counts as 1 future question)
-    let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    if (daysSinceStart < 0) return;
 
-    // If today is before the start date, don't append any future questions yet
-    if (diffDays < 0) diffDays = 0;
+    const questionsToAdd = Math.min(
+        daysSinceStart + 1,
+        allQuestions.length - INITIAL_POSTED_COUNT
+    );
 
-    // Append future questions one by one based on days passed
-    for (let i = 0; i < diffDays; i++) {
-        const questionIndex = INITIAL_POSTED_COUNT + i;
-        // Check if we still have future questions in the array
-        if (questionIndex < allQuestions.length) {
-            postedQuestions.push(allQuestions[questionIndex]);
-        }
+    for (let i = 0; i < questionsToAdd; i++) {
+        postedQuestions.push(
+            allQuestions[INITIAL_POSTED_COUNT + i]
+        );
     }
 }
 
