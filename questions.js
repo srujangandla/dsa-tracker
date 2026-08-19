@@ -24,7 +24,6 @@ const allQuestions = [
     "4Sum",
     "Search a 2D Matrix",
     "Search a 2D Matrix II",
-    "Spiral Matrix",
     "Valid Anagram",
     "First Unique Character in a String",
     "Reverse String",
@@ -83,7 +82,7 @@ const allQuestions = [
 ];
 
 // The first 37 questions are already posted and will always be visible.
-const INITIAL_POSTED_COUNT = 35;
+const INITIAL_POSTED_COUNT = 34;
 
 // Start with the first 37 questions already posted
 const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
