@@ -83,7 +83,7 @@ const allQuestions = [
 ];
 
 // The first 37 questions are already posted and will always be visible.
-const INITIAL_POSTED_COUNT = 37;
+const INITIAL_POSTED_COUNT = 35;
 
 // Start with the first 37 questions already posted
 const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
