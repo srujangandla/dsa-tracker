@@ -89,13 +89,11 @@ const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
 
 // Set the start date for when the NEW future questions will start posting (Format: YYYY-MM-DD)
 // E.g., if set to "2026-08-20", the 38th question will post on that date.
-const FUTURE_START_DATE = "2026-08-20";
+const FUTURE_START_DATE = "2026-08-21";
 
 function appendDailyQuestions() {
-    const startDate = new Date(`${FUTURE_START_DATE}T00:00:00`);
+    const startDate = new Date(`${FUTURE_START_DATE}T08:00:00`);
     const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
 
     const diffTime = today.getTime() - startDate.getTime();
     const daysSinceStart = Math.floor(

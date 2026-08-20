@@ -109,7 +109,7 @@ function loadSubmissions() {
             // Today's challenge day
             const todayDay = document.getElementById("day").value.trim();
 
-            const sortedProfiles = Object.keys(members).sort((a, b) => members[b].total - members[a].total);
+            const sortedProfiles = Object.keys(members).sort((a, b) => members[b].solvedProblems.size - members[a].solvedProblems.size);
 
             sortedProfiles.forEach(profile => {
 
@@ -149,7 +149,7 @@ function loadSubmissions() {
 
                 tr.innerHTML = `
                 <td>${profile}</td>
-                <td>${member.total}</td>
+                <td>${member.solvedProblems.size}</td>
                 <td style="max-width: 250px; white-space: normal; line-height: 1.4;">${missingListDisplay}</td>
                 <td>${member.lastTime}</td>
             `;
