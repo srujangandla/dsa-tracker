@@ -24,6 +24,7 @@ const allQuestions = [
     "4Sum",
     "Search a 2D Matrix",
     "Search a 2D Matrix II",
+    "Spiral Matrix",
     "Valid Anagram",
     "First Unique Character in a String",
     "Reverse String",
@@ -81,8 +82,8 @@ const allQuestions = [
     "Koko Eating Bananas",
 ];
 
-// The first 37 questions are already posted and will always be visible.
-const INITIAL_POSTED_COUNT = 34;
+// The first 36 questions are already posted and will always be visible.
+const INITIAL_POSTED_COUNT = 36;
 
 // Start with the first 37 questions already posted
 const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
@@ -116,3 +117,44 @@ function appendDailyQuestions() {
 
 // Automatically append the future questions based on today's date
 appendDailyQuestions();
+
+// ============================================
+// ALIASES — common name variations → canonical name
+// Add new entries here whenever a user's submission name
+// doesn't exactly match the question name above.
+// All keys must be LOWERCASE.
+// ============================================
+const questionAliases = {
+    // Stock
+    "best time to buy and sell stocks":         "best time to buy and sell stock",
+    "best time to buy & sell stock":             "best time to buy and sell stock",
+    "best time to buy & sell stocks":            "best time to buy and sell stock",
+
+    // Move Zeroes
+    "move zeros":                                "move zeroes",
+
+    // Maximum Average Subarray I
+    "maximum average subarray":                  "maximum average subarray i",
+
+    // Subarray Sum Equals K (typo)
+    "subaaray sum equals k":                     "subarray sum equals k",
+    "subarray sum equal k":                      "subarray sum equals k",
+    "sub array sum equals k":                    "subarray sum equals k",
+
+    // Search a 2D Matrix variations
+    "search in a 2d matrix":                     "search a 2d matrix",
+    "search in 2d matrix":                       "search a 2d matrix",
+    "search a 2d matrix 2":                      "search a 2d matrix ii",
+    "search in a 2d matrix ii":                  "search a 2d matrix ii",
+
+    // Pow(x,n) spacing
+    "pow(x, n)":                                 "pow(x,n)",
+    "pow (x,n)":                                 "pow(x,n)",
+
+    // Max Consecutive Ones III
+    "max consecutive ones 3":                    "max consecutive ones iii",
+    "max consecutive ones":                      "max consecutive ones iii",
+
+    // Reverse Words
+    "reverse words in a string 3":               "reverse words in a string iii",
+};

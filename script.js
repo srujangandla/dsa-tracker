@@ -17,6 +17,7 @@ async function submitData() {
     const day = document.getElementById("day").value.trim();
     const difficulty = document.getElementById("difficulty").value;
     const url = document.getElementById("url").value.trim();
+    const leetcode_no = document.getElementById("leetcode_no").value.trim();
 
     if (!profile) return showStatus("⚠ Enter your name.", "error");
     if (!problem) return showStatus("📘 Enter problem name.", "error");
@@ -30,7 +31,8 @@ async function submitData() {
         problem,
         day,
         difficulty,
-        url
+        url,
+        leetcode_no
     };
 
     try {
@@ -72,87 +74,142 @@ function loadSubmissions() {
         .then(data => {
 
             const table = document.getElementById("submissionTable");
-
             table.innerHTML = "";
 
+            // ── Build reverse map: LeetCode number (string) → canonical lowercase name ──
+            const lcNumToName = {};
+            if (typeof leetcodeMap !== 'undefined') {
+                Object.entries(leetcodeMap).forEach(([name, num]) => {
+                    lcNumToName[String(num)] = name;
+                });
+            }
+
+            // ── Build Set of LeetCode numbers for all posted questions ──
+            const postedNumbers = new Set();          // e.g. {"169","724","121", ...}
+            const postedNumToName = {};               // "169" → "Majority Element"
+            if (typeof postedQuestions !== 'undefined' && typeof leetcodeMap !== 'undefined') {
+                postedQuestions.forEach(q => {
+                    const num = leetcodeMap[q.toLowerCase().trim()];
+                    if (num) {
+                        postedNumbers.add(String(num));
+                        postedNumToName[String(num)] = q;
+                    }
+                });
+            }
+
+            const totalPosted = (typeof postedQuestions !== 'undefined') ? postedQuestions.length : 0;
+
+            // ── Aggregate per member ──
             const members = {};
 
-            // Count submissions and store latest submission
             data.forEach(row => {
 
-                const profile = row[0];
+                const profile    = row[0];
                 const problemName = row[1];
-                const day = row[2];
-                const time = row[5];
+                const time       = row[5];
+                const lcNo       = row[6] ? String(row[6]).trim() : "";
+
+                if (!profile) return;
 
                 if (!members[profile]) {
-
                     members[profile] = {
-                        total: 0,
-                        lastDay: day,
                         lastTime: time,
-                        solvedProblems: new Set()
+                        submittedNumbers: new Set(),   // LeetCode numbers submitted
+                        solvedNames: new Set()         // fallback: canonical lowercase names
                     };
-
                 }
 
-                members[profile].total++;
-                if (problemName) {
-                    members[profile].solvedProblems.add(problemName.toLowerCase().trim());
+                if (lcNo && lcNumToName[lcNo]) {
+                    // ✅ Primary: number-based — most reliable
+                    members[profile].submittedNumbers.add(lcNo);
+                } else if (problemName) {
+                    // ⚠️ Fallback for old rows without a LeetCode number
+                    const key = problemName.toLowerCase().trim();
+                    const canonical = (typeof questionAliases !== 'undefined' && questionAliases[key])
+                        ? questionAliases[key]
+                        : key;
+                    // Try to resolve to a number via leetcodeMap
+                    const resolvedNum = typeof leetcodeMap !== 'undefined'
+                        ? leetcodeMap[canonical]
+                        : null;
+                    if (resolvedNum) {
+                        members[profile].submittedNumbers.add(String(resolvedNum));
+                    } else {
+                        members[profile].solvedNames.add(canonical);
+                    }
                 }
 
-                members[profile].lastDay = day;
                 members[profile].lastTime = time;
 
             });
 
-            // Today's challenge day
-            const todayDay = document.getElementById("day").value.trim();
-
-            const sortedProfiles = Object.keys(members).sort((a, b) => members[b].solvedProblems.size - members[a].solvedProblems.size);
+            // ── Sort by most submitted (descending) ──
+            const sortedProfiles = Object.keys(members).sort(
+                (a, b) => {
+                    const aCount = [...postedNumbers].filter(n =>
+                        members[a].submittedNumbers.has(n) ||
+                        members[a].solvedNames.has(lcNumToName[n])
+                    ).length;
+                    const bCount = [...postedNumbers].filter(n =>
+                        members[b].submittedNumbers.has(n) ||
+                        members[b].solvedNames.has(lcNumToName[n])
+                    ).length;
+                    return bCount - aCount;
+                }
+            );
 
             sortedProfiles.forEach(profile => {
 
                 const member = members[profile];
 
+                // ── Compute missing: posted questions NOT submitted by this member ──
+                const missingNums = [...postedNumbers].filter(num => {
+                    // Check by number first
+                    if (member.submittedNumbers.has(num)) return false;
+                    // Fallback: check by name (for old submissions resolved by name)
+                    const name = lcNumToName[num];
+                    if (name && member.solvedNames.has(name)) return false;
+                    return true;
+                });
+
+                const missedCount     = missingNums.length;
+                const submittedCount  = totalPosted - missedCount;
                 let missingListDisplay = "N/A";
-                if (typeof postedQuestions !== 'undefined') {
-                    const missingList = [];
-                    postedQuestions.forEach(q => {
-                        if (!member.solvedProblems.has(q.toLowerCase().trim())) {
-                            missingList.push(q);
-                        }
-                    });
-                    if (missingList.length > 0) {
-                        const listHtml = missingList.map(q => {
-                            let num = "";
-                            if (typeof leetcodeMap !== 'undefined') {
-                                const id = leetcodeMap[q.toLowerCase().trim()];
-                                if (id) num = id + ". ";
-                            }
-                            return `<div style="margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px;">• ${num}${q}</div>`;
-                        }).join("");
-                        missingListDisplay = `
-                        <details style="cursor: pointer; text-align: left;">
-                            <summary style="font-weight: 500; outline: none; color: #000000ff;">View Missing (${missingList.length})</summary>
-                            <div style="margin-top: 8px; max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.9em; color: #f87171;">
-                                ${listHtml}
-                            </div>
-                        </details>
-                    `;
-                    } else {
+
+                if (totalPosted > 0) {
+
+                    if (missedCount === 0) {
+
                         missingListDisplay = '<span style="color: #86efac;">✅ All Caught Up!</span>';
+
+                    } else {
+
+                        const listHtml = missingNums.map(num => {
+                            const displayName = postedNumToName[num] || lcNumToName[num] || num;
+                            return `<div style="margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px;">• ${num}. ${displayName}</div>`;
+                        }).join("");
+
+                        missingListDisplay = `
+                            <details style="cursor: pointer; text-align: left;">
+                                <summary style="font-weight: 500; outline: none; color: #000000ff;">View Missing (${missedCount})</summary>
+                                <div style="margin-top: 8px; max-height: 120px; overflow-y: auto; padding-right: 5px; font-size: 0.9em; color: #f87171;">
+                                    ${listHtml}
+                                </div>
+                            </details>
+                        `;
+
                     }
+
                 }
 
                 const tr = document.createElement("tr");
 
                 tr.innerHTML = `
-                <td>${profile}</td>
-                <td>${member.solvedProblems.size}</td>
-                <td style="max-width: 250px; white-space: normal; line-height: 1.4;">${missingListDisplay}</td>
-                <td>${member.lastTime}</td>
-            `;
+                    <td>${profile}</td>
+                    <td>${submittedCount}</td>
+                    <td style="max-width: 250px; white-space: normal; line-height: 1.4;">${missingListDisplay}</td>
+                    <td>${member.lastTime || "—"}</td>
+                `;
 
                 table.appendChild(tr);
 
@@ -162,11 +219,17 @@ function loadSubmissions() {
 
         .catch(error => {
 
-            console.error(error);
+            console.error("Failed to load submissions:", error);
+
+            const table = document.getElementById("submissionTable");
+            table.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#f87171;">⚠️ Failed to load data. Please refresh.</td></tr>`;
 
         });
 
 }
+
+
+
 
 // ============================================
 // STATUS
@@ -196,6 +259,7 @@ function clearForm() {
     document.getElementById("profile").value = "";
     document.getElementById("problem").value = "";
     document.getElementById("day").value = "";
+    document.getElementById("leetcode_no").value = "";
     document.getElementById("url").value = "";
     document.getElementById("difficulty").selectedIndex = 0;
 
