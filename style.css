@@ -461,62 +461,87 @@ button:active{
 }
 
 /* ==========================================
-   TABLE
+   TABLE & TABLE CONTAINER
 ========================================== */
 
-table{
-
+.tableContainer{
     width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border:3px solid #111;
+    border-radius:14px;
+    background:#ffffff;
+}
 
+table{
+    width:100%;
     border-collapse:collapse;
-
+    min-width:650px;
 }
 
 th{
-
     background:#25B8FF;
-
     color:#111;
-
-    border:3px solid #111;
-
-    padding:16px;
-
-    font-size:18px;
-
+    border-bottom:3px solid #111;
+    border-right:2px solid #111;
+    padding:12px 14px;
+    font-size:15px;
+    font-weight:700;
     text-align:left;
+    white-space:nowrap;
+}
 
+th:last-child{
+    border-right:none;
 }
 
 td{
-
     background:#fff;
+    border-bottom:2px solid #111;
+    border-right:2px solid #111;
+    padding:11px 14px;
+    font-size:15px;
+    vertical-align:middle;
+}
 
-    border:3px solid #111;
+td:last-child{
+    border-right:none;
+}
 
-    padding:16px;
-
-    font-size:17px;
-
+tbody tr:last-child td{
+    border-bottom:none;
 }
 
 tbody tr{
-
-    transition:.2s;
-
-}
-
-tbody tr:hover{
-
-    transform:scale(1.01);
-
+    transition:.15s;
+    cursor:pointer;
 }
 
 tbody tr:hover td{
-
     background:#FFF6C7;
-
 }
+
+tbody tr.activeRow td{
+    background:#FEF08A;
+    font-weight:700;
+}
+
+.rankBadge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:2px solid #111;
+    font-weight:800;
+    font-size:13px;
+}
+
+.rank1{ background:#FACC15; }
+.rank2{ background:#E2E8F0; }
+.rank3{ background:#FDBA74; }
+.rankOther{ background:#F3F4F6; }
 
 /* ==========================================
    SCROLLBAR
@@ -901,3 +926,440 @@ a:visited{
     box-shadow:8px 8px 0 #111;
 
 }
+
+/* ==========================================
+   MY PROGRESS / MY STATISTICS
+========================================== */
+
+.myProgressCard{
+    background:#ffffff;
+    border:4px solid #111;
+    border-radius:20px;
+    padding:35px;
+    box-shadow:12px 12px 0 #111;
+    margin-bottom:45px;
+}
+
+.progressHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.progressHeader h2{
+    font-size:32px;
+    font-weight:800;
+}
+
+.progressHeader p{
+    font-size:17px;
+    color:#555;
+    margin-top:4px;
+}
+
+.profileSelectWrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.profileSelectWrap label{
+    font-size:15px;
+    font-weight:700;
+    color:#333;
+}
+
+.profileSelectWrap select{
+    width:auto;
+    min-width:160px;
+    padding:10px 16px;
+    font-size:16px;
+    font-weight:700;
+    background:#FFE44D;
+    border:3px solid #111;
+    border-radius:12px;
+    box-shadow:4px 4px 0 #111;
+    cursor:pointer;
+}
+
+.statsGrid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:22px;
+}
+
+.statBox{
+    border:3px solid #111;
+    border-radius:14px;
+    padding:20px 14px;
+    text-align:center;
+    box-shadow:6px 6px 0 #111;
+    transition:.2s;
+}
+
+.statBox:hover{
+    transform:translate(-3px,-3px);
+    box-shadow:9px 9px 0 #111;
+}
+
+.statBox h3{
+    font-size:36px;
+    font-weight:800;
+    margin-bottom:4px;
+}
+
+.statBox p{
+    font-size:16px;
+    font-weight:700;
+}
+
+.statSolved{ background:#25B8FF; }
+.statEasy{ background:#D9F99D; }
+.statMedium{ background:#FFD447; }
+.statHard{ background:#FCA5A5; }
+
+.streakGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+
+.streakBox{
+    border:3px solid #111;
+    border-radius:14px;
+    padding:18px 20px;
+    background:#FFFDF7;
+    box-shadow:6px 6px 0 #111;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    transition:.2s;
+}
+
+.streakBox:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:8px 8px 0 #111;
+}
+
+.streakIcon{
+    font-size:36px;
+    flex-shrink:0;
+}
+
+.streakInfo{
+    display:flex;
+    flex-direction:column;
+}
+
+.streakLabel{
+    font-size:13px;
+    font-weight:700;
+    color:#666;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:2px;
+}
+
+.streakValue{
+    font-size:24px;
+    font-weight:800;
+    color:#111;
+}
+
+/* ==========================================
+   DSA ACTIVITY HEATMAP
+========================================== */
+
+.heatmapCard{
+    background:#ffffff;
+    border:4px solid #111;
+    border-radius:20px;
+    padding:35px;
+    box-shadow:12px 12px 0 #111;
+    margin-bottom:45px;
+}
+
+.heatmapHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.heatmapHeader h2{
+    font-size:32px;
+    font-weight:800;
+}
+
+.heatmapHeader p{
+    font-size:17px;
+    color:#555;
+    margin-top:4px;
+}
+
+.heatmapContainer{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:10px 4px;
+}
+
+.heatmapWrapper{
+    display:inline-block;
+    min-width:720px;
+}
+
+.monthLabels{
+    display:flex;
+    margin-left:36px;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:700;
+    color:#444;
+}
+
+.heatmapBody{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+}
+
+.weekdayLabels{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    height:130px;
+    width:28px;
+    font-size:11px;
+    font-weight:700;
+    color:#666;
+    padding-top:2px;
+}
+
+.heatmapGrid{
+    display:grid;
+    grid-auto-flow:column;
+    grid-template-rows:repeat(7, 15px);
+    gap:4px;
+}
+
+.heatCell{
+    width:15px;
+    height:15px;
+    border-radius:4px;
+    border:2px solid #111;
+    box-sizing:border-box;
+    cursor:pointer;
+    transition:transform .12s, box-shadow .12s;
+}
+
+.heatCell:hover{
+    transform:scale(1.4);
+    box-shadow:3px 3px 0 #111;
+    z-index:10;
+    position:relative;
+}
+
+.heatLevel0{ background:#F3F4F6; }
+.heatLevel1{ background:#BBF7D0; }
+.heatLevel2{ background:#4ADE80; }
+.heatLevel3{ background:#16A34A; }
+
+.heatmapLegend{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:6px;
+    margin-top:16px;
+    font-size:13px;
+    font-weight:700;
+    color:#444;
+}
+
+.legendBox{
+    width:14px;
+    height:14px;
+    border-radius:3px;
+    border:2px solid #111;
+}
+
+.heatmapTooltip{
+    position:fixed;
+    display:none;
+    pointer-events:none;
+    background:#111;
+    color:#fff;
+    padding:7px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+    z-index:99999;
+    box-shadow:4px 4px 0 rgba(0,0,0,0.3);
+    white-space:nowrap;
+    transform:translate(-50%, -120%);
+}
+
+/* ==========================================
+   WEB PUSH / DSA REMINDERS CARD
+========================================== */
+
+.reminderCard{
+    background:#ffffff;
+    border:4px solid #111;
+    border-radius:20px;
+    padding:35px;
+    box-shadow:12px 12px 0 #111;
+    margin-bottom:45px;
+}
+
+.reminderHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:18px;
+}
+
+.reminderHeader h2{
+    font-size:32px;
+    font-weight:800;
+}
+
+.reminderHeader p{
+    font-size:17px;
+    color:#555;
+    margin-top:4px;
+}
+
+.reminderControls{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:15px;
+}
+
+.reminderBtn{
+    width:auto;
+    margin-top:0;
+    padding:12px 22px;
+    font-size:16px;
+    font-weight:800;
+    border:3px solid #111;
+    border-radius:12px;
+    background:#FFE44D;
+    color:#111;
+    cursor:pointer;
+    box-shadow:5px 5px 0 #111;
+    transition:.15s;
+}
+
+.reminderBtn:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:8px 8px 0 #111;
+}
+
+.reminderBtn.activeState{
+    background:#FCA5A5;
+}
+
+.reminderBtnSecondary{
+    width:auto;
+    margin-top:0;
+    padding:12px 20px;
+    font-size:15px;
+    font-weight:700;
+    border:3px solid #111;
+    border-radius:12px;
+    background:#F3F4F6;
+    color:#111;
+    cursor:pointer;
+    box-shadow:4px 4px 0 #111;
+    transition:.15s;
+}
+
+.reminderBtnSecondary:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:6px 6px 0 #111;
+}
+
+.reminderTimeGroup{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:15px;
+    font-weight:700;
+}
+
+.reminderTimeGroup input[type="time"]{
+    width:auto;
+    padding:8px 12px;
+    font-size:15px;
+    font-weight:700;
+    border:3px solid #111;
+    border-radius:10px;
+    background:#FAFAFA;
+}
+
+.reminderStatusBox{
+    margin-top:16px;
+    padding:12px 16px;
+    border:2px solid #111;
+    border-radius:10px;
+    background:#FFF8E8;
+    font-size:14px;
+    font-weight:700;
+    color:#333;
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS FOR NEW CARDS
+========================================== */
+
+@media(max-width:900px){
+    .statsGrid{
+        grid-template-columns:repeat(2,1fr);
+    }
+    .streakGrid{
+        grid-template-columns:1fr;
+    }
+    .myProgressCard,
+    .heatmapCard,
+    .reminderCard{
+        padding:25px;
+    }
+}
+
+@media(max-width:600px){
+    .statsGrid{
+        grid-template-columns:1fr;
+    }
+    .progressHeader h2,
+    .heatmapHeader h2,
+    .reminderHeader h2{
+        font-size:26px;
+    }
+    .profileSelectWrap{
+        width:100%;
+        justify-content:space-between;
+    }
+    .profileSelectWrap select{
+        width:100%;
+    }
+    .reminderControls{
+        flex-direction:column;
+        align-items:stretch;
+    }
+    .reminderBtn,
+    .reminderBtnSecondary{
+        width:100%;
+        text-align:center;
+    }
+}

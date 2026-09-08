@@ -35,7 +35,7 @@
 
             </div>
 
-            <div class="dayBadge">
+            <div class="dayBadge" id="currentDayBadge">
 
                 🔥 Day N
 
@@ -51,6 +51,7 @@
 
                 <h2>🎯 DSA Challenge</h2>
 
+                <br>
                 <p>
                     Solve today's problem and submit your solution before the day ends.
                     <br>
@@ -133,6 +134,241 @@
 
         </section>
 
+        <!-- ================= MY PROGRESS / MY STATISTICS ================= -->
+
+        <section class="myProgressCard">
+
+            <div class="progressHeader">
+
+                <div>
+
+                    <h2>📊 My Progress</h2>
+
+                    <p>Track your individual solving consistency and difficulty stats.</p>
+
+                </div>
+
+                <div class="profileSelectWrap">
+
+                    <label for="profileSelector">👤 Active Profile:</label>
+
+                    <select id="profileSelector" onchange="onProfileSelected(this.value)">
+
+                        <!-- Filled dynamically by JavaScript -->
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="statsGrid">
+
+                <div class="statBox statSolved">
+
+                    <h3 id="statTotalSolved">0</h3>
+
+                    <p>Problems Solved</p>
+
+                </div>
+
+                <div class="statBox statEasy">
+
+                    <h3 id="statEasySolved">0</h3>
+
+                    <p>🟢 Easy</p>
+
+                </div>
+
+                <div class="statBox statMedium">
+
+                    <h3 id="statMediumSolved">0</h3>
+
+                    <p>🟡 Medium</p>
+
+                </div>
+
+                <div class="statBox statHard">
+
+                    <h3 id="statHardSolved">0</h3>
+
+                    <p>🔴 Hard</p>
+
+                </div>
+
+            </div>
+
+            <div class="streakGrid">
+
+                <div class="streakBox">
+
+                    <div class="streakIcon">🔥</div>
+
+                    <div class="streakInfo">
+
+                        <span class="streakLabel">Current Streak</span>
+
+                        <span class="streakValue" id="statCurrentStreak">0 Days</span>
+
+                    </div>
+
+                </div>
+
+                <div class="streakBox">
+
+                    <div class="streakIcon">🏆</div>
+
+                    <div class="streakInfo">
+
+                        <span class="streakLabel">Longest Streak</span>
+
+                        <span class="streakValue" id="statLongestStreak">0 Days</span>
+
+                    </div>
+
+                </div>
+
+                <div class="streakBox">
+
+                    <div class="streakIcon">📈</div>
+
+                    <div class="streakInfo">
+
+                        <span class="streakLabel">Completion Rate</span>
+
+                        <span class="streakValue" id="statCompletionRate">0%</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================= DSA ACTIVITY HEATMAP ================= -->
+
+        <section class="heatmapCard">
+
+            <div class="heatmapHeader">
+
+                <div>
+
+                    <h2>🔥 DSA Activity</h2>
+
+                    <p id="heatmapSubtitle">Daily problem solving frequency across the challenge.</p>
+
+                </div>
+
+            </div>
+
+            <div class="heatmapContainer">
+
+                <div class="heatmapWrapper">
+
+                    <div class="monthLabels" id="heatmapMonthLabels">
+
+                        <!-- Filled dynamically by JavaScript -->
+
+                    </div>
+
+                    <div class="heatmapBody">
+
+                        <div class="weekdayLabels">
+
+                            <span>Mon</span>
+
+                            <span>Wed</span>
+
+                            <span>Fri</span>
+
+                        </div>
+
+                        <div class="heatmapGrid" id="heatmapGrid">
+
+                            <!-- Filled dynamically by JavaScript -->
+
+                        </div>
+
+                    </div>
+
+                    <div class="heatmapLegend">
+
+                        <span>Less</span>
+
+                        <div class="legendBox heatLevel0"></div>
+
+                        <div class="legendBox heatLevel1"></div>
+
+                        <div class="legendBox heatLevel2"></div>
+
+                        <div class="legendBox heatLevel3"></div>
+
+                        <span>More</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Hover Tooltip -->
+
+            <div class="heatmapTooltip" id="heatmapTooltip"></div>
+
+        </section>
+
+        <!-- ================= DSA REMINDERS ================= -->
+
+        <section class="reminderCard">
+
+            <div class="reminderHeader">
+
+                <div>
+
+                    <h2>🔔 DSA Reminders</h2>
+
+                    <p>Browser push notifications so you never break your consistency or lose your streak.</p>
+
+                </div>
+
+            </div>
+
+            <div class="reminderControls">
+
+                <button type="button" class="reminderBtn" id="toggleReminderBtn"
+                    onclick="toggleNotificationSubscription()">
+
+                    🔔 Enable Notifications
+
+                </button>
+
+                <div class="reminderTimeGroup">
+
+                    <label for="reminderTimeInput">⏰ Daily Reminder Time:</label>
+
+                    <input type="time" id="reminderTimeInput" value="20:00"
+                        onchange="onReminderTimeChanged(this.value)">
+
+                </div>
+
+                <button type="button" class="reminderBtnSecondary" id="testReminderBtn"
+                    onclick="triggerTestNotification()">
+
+                    🧪 Test Reminder
+
+                </button>
+
+            </div>
+
+            <div class="reminderStatusBox" id="reminderStatusText">
+
+                ℹ️ Notifications are currently disabled. Click "Enable Notifications" to get daily challenge reminders.
+
+            </div>
+
+        </section>
+
         <!-- ================= TEAM PROGRESS ================= -->
 
         <section class="recent">
@@ -143,7 +379,7 @@
 
                     <h2>🏆 Team Progress</h2>
 
-                    <p>See everyone's progress at a glance.</p>
+                    <p>See everyone's progress, ranks, and streaks at a glance.</p>
 
                 </div>
 
@@ -156,28 +392,34 @@
 
             </div>
 
-            <table>
+            <div class="tableContainer">
 
-                <thead>
+                <table>
 
-                    <tr>
+                    <thead>
 
-                        <th>👤 Profile</th>
-                        <th>✅ Problems Submitted</th>
-                        <th>❌ Questions Missed</th>
-                        <th>🕒 Last Submission</th>
+                        <tr>
 
-                    </tr>
+                            <th>🏅 Rank</th>
+                            <th>👤 Profile</th>
+                            <th>✅ Problems Solved</th>
+                            <th>🔥 Current Streak</th>
+                            <th>❌ Questions Missed</th>
+                            <th>🕒 Last Active</th>
 
-                </thead>
+                        </tr>
 
-                <tbody id="submissionTable">
+                    </thead>
 
-                    <!-- Filled automatically by JavaScript -->
+                    <tbody id="submissionTable">
 
-                </tbody>
+                        <!-- Filled automatically by JavaScript -->
 
-            </table>
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </section>
 
