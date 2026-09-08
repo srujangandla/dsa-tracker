@@ -253,11 +253,12 @@ async function submitData() {
 
         clearForm();
 
-        // Process data with local cache included
+        // Re-render immediately with local pending submission included
         processAndRenderAll(allSubmissions);
 
-        // Fetch fresh data from sheet
-        setTimeout(loadSubmissions, 1200);
+        // Fetch fresh data from sheet — give Google Sheets time to process the POST
+        setTimeout(loadSubmissions, 4000);
+        setTimeout(loadSubmissions, 10000);
 
     } catch (err) {
         console.error(err);
