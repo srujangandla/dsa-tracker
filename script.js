@@ -710,6 +710,14 @@ function renderTeamProgress(members, postedNumbers, postedNumToName, lcNumToName
         });
 
         table.appendChild(tr);
+
+        // Prevent the <details> dropdown from triggering the row's profile-switch click
+        const detailsEl = tr.querySelector("details");
+        if (detailsEl) {
+            detailsEl.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
     });
 }
 
