@@ -275,7 +275,24 @@ function loadSubmissions() {
         .then(response => response.json())
         .then(data => {
             allSubmissions = Array.isArray(data) ? data : [];
-            localPendingSubmissions = []; // Clear pending once remote fetched
+            // Only clear pending submissions that are already reflected in remote data.
+            // This prevents the 4-second refresh from reverting an optimistic UI update
+            // when Google Sheets hasn't yet processed the POST.
+            localPendingSubmissions = localPendingSubmissions.filter(pending => {
+                const pProfile = String(pending[0] || "").trim().toLowerCase();
+                const pProblem = String(pending[1] || "").trim().toLowerCase();
+                const pLcNo   = String(pending[6] || "").trim();
+                return !allSubmissions.some(r => {
+                    const rProfile = String(r[0] || "").trim().toLowerCase();
+                    const rProblem = String(r[1] || "").trim().toLowerCase();
+                    const rLcNo   = String(r[6] || "").trim();
+                    const profileMatch = rProfile === pProfile;
+                    // Match by LeetCode number (preferred) or problem name
+                    const problemMatch = (pLcNo && rLcNo && pLcNo === rLcNo)
+                        || rProblem === pProblem;
+                    return profileMatch && problemMatch;
+                });
+            });
             processAndRenderAll(allSubmissions);
         })
         .catch(error => {
@@ -657,7 +674,11 @@ function renderTeamProgress(members, postedNumbers, postedNumToName, lcNumToName
         });
 
         const missedCount = missingNums.length;
-        const submittedCount = totalPosted - missedCount;
+        // Count solved posted questions using the same set-intersection logic
+        // as the rank sort — avoids inflated counts when totalPosted > postedNumbers.size
+        const submittedCount = [...postedNumbers].filter(n =>
+            member.submittedNumbers.has(n) || member.solvedNames.has(lcNumToName[n])
+        ).length;
         let missingListDisplay = "N/A";
 
         if (totalPosted > 0) {
