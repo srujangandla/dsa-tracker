@@ -178,8 +178,8 @@ const allQuestions = [
     { name: "Intersection of Two Arrays II", topic: "Arrays" },
     { name: "Longest Palindrome", topic: "Strings" },
     { name: "Find Smallest Letter Greater Than Target", topic: "Binary Search" },
-    { name: "Find All Numbers Disappeared in an Array", topic: "Arrays" },
     { name: "Repeated Substring Pattern", topic: "Strings" },
+    { name: "Find All Numbers Disappeared in an Array", topic: "Arrays" },
     { name: "Find First and Last Position of Element in Sorted Array", topic: "Binary Search" },
     { name: "Find the Duplicate Number", topic: "Arrays" },
     { name: "Reverse Words in a String", topic: "Strings" },
@@ -201,8 +201,8 @@ const allQuestions = [
     { name: "Koko Eating Bananas", topic: "Binary Search" }
 ];
 
-// The first 36 questions are already posted and will always be visible.
-const INITIAL_POSTED_COUNT = 36;
+// The first 37 questions are already posted and will always be visible.
+const INITIAL_POSTED_COUNT = 37;
 
 // Start with the first 37 questions already posted
 const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);

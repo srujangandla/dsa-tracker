@@ -10,6 +10,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 * {
@@ -27,7 +28,10 @@ body {
 
     min-height: 100vh;
 
-    padding: 30px 24px;
+    /* Extra right padding ensures box-shadows (up to 12px) are never clipped */
+    padding: 30px 36px 30px 24px;
+
+    overflow-x: hidden;
 
 }
 
@@ -37,9 +41,10 @@ body {
 
     gap: 32px;
 
-    width: 1440px;
+    /* Use 100% so it fills the padded body without ever causing overflow */
+    width: 100%;
 
-    max-width: 98%;
+    max-width: 1440px;
 
     margin: auto;
 
@@ -68,7 +73,7 @@ body {
 ========================================== */
 
 .sidebarNav {
-    width: 200px;
+    width: 215px;
     flex-shrink: 0;
     position: sticky;
     top: 25px;
@@ -132,12 +137,16 @@ body {
 }
 
 .sidebarMenu::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .sidebarMenu::-webkit-scrollbar-thumb {
-    background: #111;
+    background: #ccc;
     border-radius: 10px;
+}
+
+.sidebarMenu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .sidebarLink {
@@ -193,19 +202,79 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 10px 12px;
+    padding: 8px 10px;
     background: #FFE44D;
     border: 3px solid #111;
     border-radius: 14px;
     box-shadow: 4px 4px 0 #111;
 }
 
+.sidebarProfileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
 .sidebarProfileSwitcherLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-size: 11px;
     font-weight: 800;
     color: #444;
     text-transform: uppercase;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.profileLabelIcon {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-block;
+}
+
+.profileLabelText {
+    white-space: nowrap;
+}
+
+button.addProfileBtnMini,
+.addProfileBtnMini {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 3px 8px !important;
+    background: #ffffff;
+    color: #111;
+    border: 2px solid #111;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #111;
+    transition: transform .1s, box-shadow .1s, background .15s;
+    line-height: 1.2;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button.addProfileBtnMini:hover,
+.addProfileBtnMini:hover {
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 3px 3px 0 #111 !important;
+    background: #D9F99D;
+}
+
+button.addProfileBtnMini:active,
+.addProfileBtnMini:active {
+    transform: translate(1px, 1px) !important;
+    box-shadow: 1px 1px 0 #111 !important;
 }
 
 .sidebarProfileSelect {
@@ -1205,6 +1274,7 @@ a:visited {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .profileSelectWrap label {
@@ -1224,6 +1294,44 @@ a:visited {
     border-radius: 12px;
     box-shadow: 4px 4px 0 #111;
     cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.profileSelectWrap select:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #111;
+}
+
+button.addProfileBtn,
+.addProfileBtn {
+    width: auto !important;
+    margin: 0 !important;
+    background: #25B8FF;
+    color: #111;
+    border: 3px solid #111;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 10px 16px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #111;
+    transition: transform .15s, box-shadow .15s, background .15s;
+    white-space: nowrap;
+    font-family: inherit;
+    line-height: normal;
+}
+
+button.addProfileBtn:hover,
+.addProfileBtn:hover {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 6px 6px 0 #111 !important;
+    background: #79D7FF;
+}
+
+button.addProfileBtn:active,
+.addProfileBtn:active {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 2px 2px 0 #111 !important;
 }
 
 .statsGrid {

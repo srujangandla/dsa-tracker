@@ -16,6 +16,27 @@ let swRegistration = null;
 const status = document.getElementById("status");
 
 // ============================================
+// PROFILE MANAGEMENT (CUSTOM / LOCAL PROFILES)
+// ============================================
+
+function getCustomProfiles() {
+    try {
+        const stored = localStorage.getItem("dsa_tracker_custom_profiles");
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveCustomProfiles(profiles) {
+    try {
+        localStorage.setItem("dsa_tracker_custom_profiles", JSON.stringify(profiles));
+    } catch (e) {
+        console.error("Failed to save custom profiles to localStorage", e);
+    }
+}
+
+// ============================================
 // DATE & TIMESTAMP UTILITIES (FIXES TIMESTAMP BUG)
 // ============================================
 
@@ -411,6 +432,25 @@ function processAndRenderAll(remoteRows) {
         }
     });
 
+    // Ensure custom profiles exist in members
+    const customProfiles = getCustomProfiles();
+    if (activeProfile && !members[activeProfile] && !customProfiles.includes(activeProfile)) {
+        customProfiles.push(activeProfile);
+        saveCustomProfiles(customProfiles);
+    }
+    customProfiles.forEach(cp => {
+        if (!members[cp]) {
+            members[cp] = {
+                profile: cp,
+                lastDate: null,
+                submittedNumbers: new Set(),
+                solvedNames: new Set(),
+                dates: [],
+                difficultyMap: new Map()
+            };
+        }
+    });
+
     // Ensure active profile exists
     const profileNames = Object.keys(members);
     if (profileNames.length > 0 && !members[activeProfile]) {
@@ -491,20 +531,22 @@ function renderMyProgress(members, totalPosted, profileNames) {
     if (longStreakEl) longStreakEl.textContent = `${streaks.longest} Days`;
     if (rateEl) rateEl.textContent = `${completionRate}%`;
 
+    const optionsHtml = profileNames.map(p =>
+        `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
+    ).join("") + `<option value="__add_new__">➕ Add New Profile...</option>`;
+
     // Populate the My Progress section profile selector
     const profileSelector = document.getElementById("profileSelector");
     if (profileSelector && profileNames.length > 0) {
-        profileSelector.innerHTML = profileNames.map(p =>
-            `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
-        ).join("");
+        profileSelector.innerHTML = optionsHtml;
+        profileSelector.value = activeProfile;
     }
 
     // Populate the sidebar profile switcher dropdown
     const sidebarSelect = document.getElementById("sidebarProfileSelect");
     if (sidebarSelect && profileNames.length > 0) {
-        sidebarSelect.innerHTML = profileNames.map(p =>
-            `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
-        ).join("");
+        sidebarSelect.innerHTML = optionsHtml;
+        sidebarSelect.value = activeProfile;
     }
 
     // Update active profile display in Challenge section
@@ -518,6 +560,12 @@ function renderMyProgress(members, totalPosted, profileNames) {
 
 function onProfileSelected(newProfile) {
     if (!newProfile) return;
+
+    if (newProfile === "__add_new__") {
+        promptAddNewProfile();
+        return;
+    }
+
     activeProfile = newProfile;
     localStorage.setItem("dsa_tracker_active_profile", activeProfile);
 
@@ -538,6 +586,51 @@ function onProfileSelected(newProfile) {
     if (challengeProfileEl) challengeProfileEl.textContent = activeProfile;
 
     processAndRenderAll(allSubmissions);
+}
+
+function promptAddNewProfile() {
+    const input = prompt("Enter a new username / profile name:");
+    if (input === null) {
+        // User clicked cancel — revert dropdowns back to activeProfile
+        syncProfileDropdowns();
+        return;
+    }
+
+    const trimmed = input.trim();
+    if (!trimmed) {
+        alert("Username cannot be empty.");
+        syncProfileDropdowns();
+        return;
+    }
+
+    if (trimmed === "__add_new__") {
+        syncProfileDropdowns();
+        return;
+    }
+
+    const custom = getCustomProfiles();
+    const existingCustom = custom.find(p => p.toLowerCase() === trimmed.toLowerCase());
+    const existingRemote = Object.keys(lastProcessedMembers || {}).find(p => p.toLowerCase() === trimmed.toLowerCase());
+
+    const chosenName = existingCustom || existingRemote || trimmed;
+
+    if (!existingCustom && !existingRemote) {
+        custom.push(chosenName);
+        saveCustomProfiles(custom);
+    }
+
+    onProfileSelected(chosenName);
+    if (typeof showStatus === "function") {
+        showStatus(`👤 Switched to profile: ${chosenName}`, "info");
+    }
+}
+
+function syncProfileDropdowns() {
+    const profileSelector = document.getElementById("profileSelector");
+    if (profileSelector) profileSelector.value = activeProfile;
+
+    const sidebarSelect = document.getElementById("sidebarProfileSelect");
+    if (sidebarSelect) sidebarSelect.value = activeProfile;
 }
 
 // ============================================
@@ -875,7 +968,12 @@ function renderTeamProgress(members, postedNumbers, postedNumToName, lcNumToName
     table.innerHTML = "";
 
     // ── Sort members: 1st by solved count (descending), 2nd by last submission time ──
-    const sortedProfiles = Object.keys(members).sort((a, b) => {
+    const sortedProfiles = Object.keys(members).filter(p => {
+        const aMember = members[p];
+        if (!aMember) return false;
+        const hasActivity = aMember.submittedNumbers.size > 0 || aMember.solvedNames.size > 0 || aMember.lastDate !== null;
+        return hasActivity || p === activeProfile;
+    }).sort((a, b) => {
         const aMember = members[a];
         const bMember = members[b];
 

@@ -43,7 +43,16 @@
 
             <div class="sidebarProfileSwitcher">
 
-                <label class="sidebarProfileSwitcherLabel" for="sidebarProfileSelect">👤 Active Profile</label>
+                <div class="sidebarProfileHeader">
+
+                    <label class="sidebarProfileSwitcherLabel" for="sidebarProfileSelect"><span
+                            class="profileLabelIcon">👤</span><span class="profileLabelText">Active
+                            Profile</span></label>
+
+                </div>
+
+                <button type="button" class="addProfileBtnMini" id="sidebarAddProfileBtn"
+                    onclick="promptAddNewProfile()" title="Add New Profile">➕ New</button>
 
                 <select id="sidebarProfileSelect" class="sidebarProfileSelect" onchange="onProfileSelected(this.value)">
 
@@ -71,19 +80,19 @@
 
                 </a>
 
-                <a href="#formSection" class="sidebarLink" data-target="formSection">
-
-                    <span class="navIcon">📝</span>
-
-                    <span class="navText">Submit</span>
-
-                </a>
-
                 <a href="#progressSection" class="sidebarLink" data-target="progressSection">
 
                     <span class="navIcon">📊</span>
 
                     <span class="navText">My Progress</span>
+
+                </a>
+
+                <a href="#formSection" class="sidebarLink" data-target="formSection">
+
+                    <span class="navIcon">📝</span>
+
+                    <span class="navText">Submit</span>
 
                 </a>
 
@@ -190,443 +199,444 @@
 
             </section>
 
+            <!-- ================= MY PROGRESS / MY STATISTICS ================= -->
+
+            <section class="myProgressCard" id="progressSection">
+
+                <div class="progressHeader">
+
+                    <div>
+
+                        <h2>📊 My Progress</h2>
+
+                        <p>Track your individual solving consistency and difficulty stats.</p>
+
+                    </div>
+
+                    <div class="profileSelectWrap">
+
+                        <label for="profileSelector">👤 Active Profile:</label>
+
+                        <select id="profileSelector" onchange="onProfileSelected(this.value)">
+
+                            <!-- Filled dynamically by JavaScript -->
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="statsGrid">
+
+                    <div class="statBox statSolved">
+
+                        <h3 id="statTotalSolved">0</h3>
+
+                        <p>Problems Solved</p>
+
+                    </div>
+
+                    <div class="statBox statEasy">
+
+                        <h3 id="statEasySolved">0</h3>
+
+                        <p>🟢 Easy</p>
+
+                    </div>
+
+                    <div class="statBox statMedium">
+
+                        <h3 id="statMediumSolved">0</h3>
+
+                        <p>🟡 Medium</p>
+
+                    </div>
+
+                    <div class="statBox statHard">
+
+                        <h3 id="statHardSolved">0</h3>
+
+                        <p>🔴 Hard</p>
+
+                    </div>
+
+                </div>
+
+                <div class="streakGrid">
+
+                    <div class="streakBox">
+
+                        <div class="streakIcon">🔥</div>
+
+                        <div class="streakInfo">
+
+                            <span class="streakLabel">Current Streak</span>
+
+                            <span class="streakValue" id="statCurrentStreak">0 Days</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="streakBox">
+
+                        <div class="streakIcon">🏆</div>
+
+                        <div class="streakInfo">
+
+                            <span class="streakLabel">Longest Streak</span>
+
+                            <span class="streakValue" id="statLongestStreak">0 Days</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="streakBox">
+
+                        <div class="streakIcon">📈</div>
+
+                        <div class="streakInfo">
+
+                            <span class="streakLabel">Completion Rate</span>
+
+                            <span class="streakValue" id="statCompletionRate">0%</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
             <!-- ================= SUBMISSION FORM ================= -->
 
             <section class="formCard" id="formSection">
 
-            <!-- Hidden profile input kept for JS compatibility; value is synced from sidebar dropdown -->
-            <input type="hidden" id="profile">
+                <!-- Hidden profile input kept for JS compatibility; value is synced from sidebar dropdown -->
+                <input type="hidden" id="profile">
 
-            <div class="field">
+                <div class="field">
 
-                <label>📘 Problem Name</label>
+                    <label>📘 Problem Name</label>
 
-                <input type="text" id="problem" placeholder="Example : Two Sum">
-
-            </div>
-
-            <div class="field">
-
-                <label>📅 Day</label>
-
-                <input type="text" id="day" placeholder="Day 1">
-
-            </div>
-
-            <div class="field">
-
-                <label>🔢 LeetCode Question No</label>
-
-                <input type="number" id="leetcode_no" placeholder="e.g. 169 for Majority Element" min="1">
-
-            </div>
-
-            <div class="field">
-
-                <label>⚡ Difficulty</label>
-
-                <select id="difficulty">
-
-                    <option>🟢 Easy</option>
-                    <option>🟡 Medium</option>
-                    <option>🔴 Hard</option>
-
-                </select>
-
-            </div>
-
-            <div class="field">
-
-                <label>🔗 Submission URL</label>
-
-                <input type="url" id="url" placeholder="https://leetcode.com/...">
-
-            </div>
-
-            <button onclick="submitData()">
-
-                🚀 Submit Challenge
-
-            </button>
-
-            <div id="status">
-
-                💪 Today's Challenge Status!
-
-            </div>
-
-        </section>
-
-        <!-- ================= MY PROGRESS / MY STATISTICS ================= -->
-
-        <section class="myProgressCard" id="progressSection">
-
-            <div class="progressHeader">
-
-                <div>
-
-                    <h2>📊 My Progress</h2>
-
-                    <p>Track your individual solving consistency and difficulty stats.</p>
+                    <input type="text" id="problem" placeholder="Example : Two Sum">
 
                 </div>
 
-                <div class="profileSelectWrap">
+                <div class="field">
 
-                    <label for="profileSelector">👤 Active Profile:</label>
+                    <label>📅 Day</label>
 
-                    <select id="profileSelector" onchange="onProfileSelected(this.value)">
+                    <input type="text" id="day" placeholder="Day 1">
 
-                        <!-- Filled dynamically by JavaScript -->
+                </div>
+
+                <div class="field">
+
+                    <label>🔢 LeetCode Question No</label>
+
+                    <input type="number" id="leetcode_no" placeholder="e.g. 169 for Majority Element" min="1">
+
+                </div>
+
+                <div class="field">
+
+                    <label>⚡ Difficulty</label>
+
+                    <select id="difficulty">
+
+                        <option>🟢 Easy</option>
+                        <option>🟡 Medium</option>
+                        <option>🔴 Hard</option>
 
                     </select>
 
                 </div>
 
-            </div>
+                <div class="field">
 
-            <div class="statsGrid">
+                    <label>🔗 Submission URL</label>
 
-                <div class="statBox statSolved">
-
-                    <h3 id="statTotalSolved">0</h3>
-
-                    <p>Problems Solved</p>
+                    <input type="url" id="url" placeholder="https://leetcode.com/...">
 
                 </div>
 
-                <div class="statBox statEasy">
+                <button onclick="submitData()">
 
-                    <h3 id="statEasySolved">0</h3>
-
-                    <p>🟢 Easy</p>
-
-                </div>
-
-                <div class="statBox statMedium">
-
-                    <h3 id="statMediumSolved">0</h3>
-
-                    <p>🟡 Medium</p>
-
-                </div>
-
-                <div class="statBox statHard">
-
-                    <h3 id="statHardSolved">0</h3>
-
-                    <p>🔴 Hard</p>
-
-                </div>
-
-            </div>
-
-            <div class="streakGrid">
-
-                <div class="streakBox">
-
-                    <div class="streakIcon">🔥</div>
-
-                    <div class="streakInfo">
-
-                        <span class="streakLabel">Current Streak</span>
-
-                        <span class="streakValue" id="statCurrentStreak">0 Days</span>
-
-                    </div>
-
-                </div>
-
-                <div class="streakBox">
-
-                    <div class="streakIcon">🏆</div>
-
-                    <div class="streakInfo">
-
-                        <span class="streakLabel">Longest Streak</span>
-
-                        <span class="streakValue" id="statLongestStreak">0 Days</span>
-
-                    </div>
-
-                </div>
-
-                <div class="streakBox">
-
-                    <div class="streakIcon">📈</div>
-
-                    <div class="streakInfo">
-
-                        <span class="streakLabel">Completion Rate</span>
-
-                        <span class="streakValue" id="statCompletionRate">0%</span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- ================= WEAK AREAS ================= -->
-
-        <section class="weakAreasCard" id="weakAreasCard">
-
-            <div class="weakAreasHeader">
-
-                <div>
-
-                    <h2>⚠️ Weak Areas</h2>
-
-                    <p id="weakAreasSubtitle">Topic proficiency based strictly on submitted vs. posted problems.</p>
-
-                </div>
-
-                <div class="weakSummaryChips" id="weakSummaryChips">
-
-                    <span class="chip chipWeak" id="chipWeakCount">🔴 Weak: 0</span>
-
-                    <span class="chip chipImprove" id="chipImproveCount">🟠 Needs Improvement: 0</span>
-
-                    <span class="chip chipAverage" id="chipAverageCount">🟡 Average: 0</span>
-
-                    <span class="chip chipStrong" id="chipStrongCount">🟢 Strong: 0</span>
-
-                </div>
-
-            </div>
-
-            <div class="weakAreasList" id="weakAreasList">
-
-                <!-- Filled dynamically by JavaScript -->
-
-            </div>
-
-            <div class="weakAreasFooter" id="weakAreasFooter" style="display:none;">
-
-                <button type="button" class="viewAllTopicsBtn" id="toggleAllTopicsBtn" onclick="toggleAllTopics()">
-
-                    👁️ View All Topics (<span id="allTopicsCount">0</span>)
+                    🚀 Submit Challenge
 
                 </button>
 
-            </div>
+                <div id="status">
 
-        </section>
-
-        <!-- ================= DSA ACTIVITY HEATMAP ================= -->
-
-        <section class="heatmapCard" id="heatmapSection">
-
-            <div class="heatmapHeader">
-
-                <div>
-
-                    <h2>🔥 DSA Activity</h2>
-
-                    <p id="heatmapSubtitle">Daily problem solving frequency across the challenge.</p>
+                    💪 Today's Challenge Status!
 
                 </div>
 
-            </div>
+            </section>
 
-            <div class="heatmapContainer">
+            <!-- ================= WEAK AREAS ================= -->
 
-                <div class="heatmapWrapper">
+            <section class="weakAreasCard" id="weakAreasCard">
 
-                    <div class="monthLabels" id="heatmapMonthLabels">
+                <div class="weakAreasHeader">
 
-                        <!-- Filled dynamically by JavaScript -->
+                    <div>
+
+                        <h2>⚠️ Weak Areas</h2>
+
+                        <p id="weakAreasSubtitle">Topic proficiency based strictly on submitted vs. posted problems.</p>
 
                     </div>
 
-                    <div class="heatmapBody">
+                    <div class="weakSummaryChips" id="weakSummaryChips">
 
-                        <div class="weekdayLabels">
+                        <span class="chip chipWeak" id="chipWeakCount">🔴 Weak: 0</span>
 
-                            <span>Mon</span>
+                        <span class="chip chipImprove" id="chipImproveCount">🟠 Needs Improvement: 0</span>
 
-                            <span>Wed</span>
+                        <span class="chip chipAverage" id="chipAverageCount">🟡 Average: 0</span>
 
-                            <span>Fri</span>
+                        <span class="chip chipStrong" id="chipStrongCount">🟢 Strong: 0</span>
 
-                        </div>
+                    </div>
 
-                        <div class="heatmapGrid" id="heatmapGrid">
+                </div>
+
+                <div class="weakAreasList" id="weakAreasList">
+
+                    <!-- Filled dynamically by JavaScript -->
+
+                </div>
+
+                <div class="weakAreasFooter" id="weakAreasFooter" style="display:none;">
+
+                    <button type="button" class="viewAllTopicsBtn" id="toggleAllTopicsBtn" onclick="toggleAllTopics()">
+
+                        👁️ View All Topics (<span id="allTopicsCount">0</span>)
+
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- ================= DSA ACTIVITY HEATMAP ================= -->
+
+            <section class="heatmapCard" id="heatmapSection">
+
+                <div class="heatmapHeader">
+
+                    <div>
+
+                        <h2>🔥 DSA Activity</h2>
+
+                        <p id="heatmapSubtitle">Daily problem solving frequency across the challenge.</p>
+
+                    </div>
+
+                </div>
+
+                <div class="heatmapContainer">
+
+                    <div class="heatmapWrapper">
+
+                        <div class="monthLabels" id="heatmapMonthLabels">
 
                             <!-- Filled dynamically by JavaScript -->
 
                         </div>
 
+                        <div class="heatmapBody">
+
+                            <div class="weekdayLabels">
+
+                                <span>Mon</span>
+
+                                <span>Wed</span>
+
+                                <span>Fri</span>
+
+                            </div>
+
+                            <div class="heatmapGrid" id="heatmapGrid">
+
+                                <!-- Filled dynamically by JavaScript -->
+
+                            </div>
+
+                        </div>
+
+                        <div class="heatmapLegend">
+
+                            <span>Less</span>
+
+                            <div class="legendBox heatLevel0"></div>
+
+                            <div class="legendBox heatLevel1"></div>
+
+                            <div class="legendBox heatLevel2"></div>
+
+                            <div class="legendBox heatLevel3"></div>
+
+                            <span>More</span>
+
+                        </div>
+
                     </div>
 
-                    <div class="heatmapLegend">
+                </div>
 
-                        <span>Less</span>
+                <!-- Hover Tooltip -->
 
-                        <div class="legendBox heatLevel0"></div>
+                <div class="heatmapTooltip" id="heatmapTooltip"></div>
 
-                        <div class="legendBox heatLevel1"></div>
+            </section>
 
-                        <div class="legendBox heatLevel2"></div>
+            <!-- ================= DSA REMINDERS ================= -->
 
-                        <div class="legendBox heatLevel3"></div>
+            <section class="reminderCard" id="reminderSection">
 
-                        <span>More</span>
+                <div class="reminderHeader">
+
+                    <div>
+
+                        <h2>🔔 DSA Reminders</h2>
+
+                        <p>Browser push notifications so you never break your consistency or lose your streak.</p>
 
                     </div>
 
                 </div>
 
-            </div>
+                <div class="reminderControls">
 
-            <!-- Hover Tooltip -->
+                    <button type="button" class="reminderBtn" id="toggleReminderBtn"
+                        onclick="toggleNotificationSubscription()">
 
-            <div class="heatmapTooltip" id="heatmapTooltip"></div>
+                        🔔 Enable Notifications
 
-        </section>
+                    </button>
 
-        <!-- ================= DSA REMINDERS ================= -->
+                    <div class="reminderTimeGroup">
 
-        <section class="reminderCard" id="reminderSection">
+                        <label for="reminderTimeInput">⏰ Daily Reminder Time:</label>
 
-            <div class="reminderHeader">
+                        <input type="time" id="reminderTimeInput" value="20:00"
+                            onchange="onReminderTimeChanged(this.value)">
 
-                <div>
+                    </div>
 
-                    <h2>🔔 DSA Reminders</h2>
+                    <button type="button" class="reminderBtnSecondary" id="testReminderBtn"
+                        onclick="triggerTestNotification()">
 
-                    <p>Browser push notifications so you never break your consistency or lose your streak.</p>
+                        🧪 Test Reminder
 
-                </div>
-
-            </div>
-
-            <div class="reminderControls">
-
-                <button type="button" class="reminderBtn" id="toggleReminderBtn"
-                    onclick="toggleNotificationSubscription()">
-
-                    🔔 Enable Notifications
-
-                </button>
-
-                <div class="reminderTimeGroup">
-
-                    <label for="reminderTimeInput">⏰ Daily Reminder Time:</label>
-
-                    <input type="time" id="reminderTimeInput" value="20:00"
-                        onchange="onReminderTimeChanged(this.value)">
+                    </button>
 
                 </div>
 
-                <button type="button" class="reminderBtnSecondary" id="testReminderBtn"
-                    onclick="triggerTestNotification()">
+                <div class="reminderStatusBox" id="reminderStatusText">
 
-                    🧪 Test Reminder
-
-                </button>
-
-            </div>
-
-            <div class="reminderStatusBox" id="reminderStatusText">
-
-                ℹ️ Notifications are currently disabled. Click "Enable Notifications" to get daily challenge reminders.
-
-            </div>
-
-        </section>
-
-        <!-- ================= TEAM PROGRESS ================= -->
-
-        <section class="recent" id="teamSection">
-
-            <div class="recentHeader">
-
-                <div>
-
-                    <h2>🏆 Team Progress</h2>
-
-                    <p>See everyone's progress, ranks, and streaks at a glance.</p>
+                    ℹ️ Notifications are currently disabled. Click "Enable Notifications" to get daily challenge
+                    reminders.
 
                 </div>
 
-                <a href="https://docs.google.com/spreadsheets/d/16SlnfZ3PMCWwVyfHpgxNMC72RjbYTeeCwLmZGrmtTf0/edit?usp=sharing"
-                    target="_blank" rel="noopener">
+            </section>
 
-                    📄 View Full Sheet
+            <!-- ================= TEAM PROGRESS ================= -->
 
-                </a>
+            <section class="recent" id="teamSection">
 
-            </div>
+                <div class="recentHeader">
 
-            <div class="tableContainer">
+                    <div>
 
-                <table>
+                        <h2>🏆 Team Progress</h2>
 
-                    <thead>
+                        <p>See everyone's progress, ranks, and streaks at a glance.</p>
 
-                        <tr>
+                    </div>
 
-                            <th>S.No</th>
-                            <th>👤 Profile</th>
-                            <th>✅ Problems Solved</th>
-                            <th>🔥 Current Streak</th>
-                            <th>❌ Questions Missed</th>
-                            <th>🕒 Last Active</th>
+                    <a href="https://docs.google.com/spreadsheets/d/16SlnfZ3PMCWwVyfHpgxNMC72RjbYTeeCwLmZGrmtTf0/edit?usp=sharing"
+                        target="_blank" rel="noopener">
 
-                        </tr>
+                        📄 View Full Sheet
 
-                    </thead>
-
-                    <tbody id="submissionTable">
-
-                        <!-- Filled automatically by JavaScript -->
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-        <!-- ================= FOOTER ================= -->
-
-        <footer class="footer">
-
-            <div class="footer-content">
-
-                <div class="footer-left">
-
-                    <p>
-
-                        Track • Solve • Improve • Repeat
-
-                    </p>
+                    </a>
 
                 </div>
 
-                <div class="footer-right">
+                <div class="tableContainer">
 
-                    <p>
+                    <table>
 
-                        Built for Consistency 💪
+                        <thead>
 
-                    </p>
+                            <tr>
+
+                                <th>S.No</th>
+                                <th>👤 Profile</th>
+                                <th>✅ Problems Solved</th>
+                                <th>🔥 Current Streak</th>
+                                <th>❌ Questions Missed</th>
+                                <th>🕒 Last Active</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="submissionTable">
+
+                            <!-- Filled automatically by JavaScript -->
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
-            </div>
+            </section>
 
-            <div class="footer-bottom">
+            <!-- ================= FOOTER ================= -->
 
-                Made with ❤️ for <strong>NAKAMA VOYAGE</strong> | © 2026
+            <footer class="footer">
 
-            </div>
+                <div class="footer-content">
 
-        </footer>
+                    <div class="footer-left">
+
+                        <p>
+
+                            Track • Solve • Improve • Repeat
+
+                        </p>
+
+                    </div>
+
+                    <div class="footer-right">
+
+                        <p>
+
+                            Built for Consistency 💪
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-bottom">
+
+                    Made with ❤️ for <strong>NAKAMA VOYAGE</strong> | © 2026
+
+                </div>
+
+            </footer>
 
         </main>
 
