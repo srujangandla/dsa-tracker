@@ -19,60 +19,183 @@
 
 <body>
 
-    <div class="container">
+    <div class="appLayout">
 
-        <!-- ================= HEADER ================= -->
+        <!-- ================= VERTICAL NAVBAR ================= -->
 
-        <section class="hero">
+        <aside class="sidebarNav" id="sidebarNav">
 
-            <div>
+            <div class="sidebarBrand">
 
-                <h1>🚀 Welcome Back, Coder!</h1>
+                <div class="brandIcon">⚡</div>
 
-                <p>
-                    Submit your daily DSA progress and flex your consistency.
-                </p>
+                <div class="brandInfo">
 
-            </div>
+                    <h3>DSA Tracker</h3>
 
-            <div class="dayBadge" id="currentDayBadge">
+                    <span>NAKAMA VOYAGE</span>
 
-                🔥 Day N
+                </div>
 
             </div>
 
-        </section>
+            <!-- Profile Switcher at the top of nav -->
 
-        <!-- ================= TODAY'S CHALLENGE ================= -->
+            <div class="sidebarProfileSwitcher">
 
-        <section class="challengeCard">
+                <label class="sidebarProfileSwitcherLabel" for="sidebarProfileSelect">👤 Active Profile</label>
 
-            <div class="challengeLeft">
+                <select id="sidebarProfileSelect" class="sidebarProfileSelect" onchange="onProfileSelected(this.value)">
 
-                <h2>🎯 DSA Challenge</h2>
+                    <!-- Filled dynamically by JavaScript -->
 
-                <br>
-                <p>
-                    Solve today's problem and submit your solution before the day ends.
+                </select>
+
+            </div>
+
+            <nav class="sidebarMenu" id="sidebarMenu">
+
+                <a href="#heroSection" class="sidebarLink active" data-target="heroSection">
+
+                    <span class="navIcon">🚀</span>
+
+                    <span class="navText">Overview</span>
+
+                </a>
+
+                <a href="#challengeSection" class="sidebarLink" data-target="challengeSection">
+
+                    <span class="navIcon">🎯</span>
+
+                    <span class="navText">Challenge</span>
+
+                </a>
+
+                <a href="#formSection" class="sidebarLink" data-target="formSection">
+
+                    <span class="navIcon">📝</span>
+
+                    <span class="navText">Submit</span>
+
+                </a>
+
+                <a href="#progressSection" class="sidebarLink" data-target="progressSection">
+
+                    <span class="navIcon">📊</span>
+
+                    <span class="navText">My Progress</span>
+
+                </a>
+
+                <a href="#weakAreasCard" class="sidebarLink" data-target="weakAreasCard">
+
+                    <span class="navIcon">⚠️</span>
+
+                    <span class="navText">Weak Areas</span>
+
+                </a>
+
+                <a href="#heatmapSection" class="sidebarLink" data-target="heatmapSection">
+
+                    <span class="navIcon">🔥</span>
+
+                    <span class="navText">Activity</span>
+
+                </a>
+
+                <a href="#reminderSection" class="sidebarLink" data-target="reminderSection">
+
+                    <span class="navIcon">🔔</span>
+
+                    <span class="navText">Reminders</span>
+
+                </a>
+
+                <a href="#teamSection" class="sidebarLink" data-target="teamSection">
+
+                    <span class="navIcon">🏆</span>
+
+                    <span class="navText">Team Table</span>
+
+                </a>
+
+            </nav>
+
+            <div class="sidebarFooter">
+
+                <div class="sidebarDayBadge" id="sidebarDayBadge">
+
+                    🔥 Day N
+
+                </div>
+
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <main class="mainContent">
+
+            <!-- ================= HEADER ================= -->
+
+            <section class="hero" id="heroSection">
+
+                <div>
+
+                    <h1>🚀 Welcome Back, Coder!</h1>
+
+                    <p>
+                        Submit your daily DSA progress and flex your consistency.
+                    </p>
+
+                </div>
+
+                <div class="dayBadge" id="currentDayBadge">
+
+                    🔥 Day N
+
+                </div>
+
+            </section>
+
+            <!-- ================= TODAY'S CHALLENGE ================= -->
+
+            <section class="challengeCard" id="challengeSection">
+
+                <div class="challengeLeft">
+
+                    <h2>🎯 DSA Challenge</h2>
+
                     <br>
-                    One problem closer to greatness.
-                </p>
+                    <p>
+                        Solve today's problem and submit your solution before the day ends.
+                        <br>
+                        One problem closer to greatness.
+                    </p>
 
-            </div>
+                </div>
 
-        </section>
+                <div class="challengeRight">
 
-        <!-- ================= SUBMISSION FORM ================= -->
+                    <div class="challengeProfileBadge" id="challengeProfileBadge">
 
-        <section class="formCard">
+                        <span class="challengeProfileLabel">👤 Active Profile</span>
 
-            <div class="field">
+                        <span class="challengeProfileName" id="challengeActiveProfileName">—</span>
 
-                <label>👤 Profile</label>
+                    </div>
 
-                <input type="text" id="profile" placeholder="Enter your name">
+                </div>
 
-            </div>
+            </section>
+
+            <!-- ================= SUBMISSION FORM ================= -->
+
+            <section class="formCard" id="formSection">
+
+            <!-- Hidden profile input kept for JS compatibility; value is synced from sidebar dropdown -->
+            <input type="hidden" id="profile">
 
             <div class="field">
 
@@ -136,7 +259,7 @@
 
         <!-- ================= MY PROGRESS / MY STATISTICS ================= -->
 
-        <section class="myProgressCard">
+        <section class="myProgressCard" id="progressSection">
 
             <div class="progressHeader">
 
@@ -246,9 +369,55 @@
 
         </section>
 
+        <!-- ================= WEAK AREAS ================= -->
+
+        <section class="weakAreasCard" id="weakAreasCard">
+
+            <div class="weakAreasHeader">
+
+                <div>
+
+                    <h2>⚠️ Weak Areas</h2>
+
+                    <p id="weakAreasSubtitle">Topic proficiency based strictly on submitted vs. posted problems.</p>
+
+                </div>
+
+                <div class="weakSummaryChips" id="weakSummaryChips">
+
+                    <span class="chip chipWeak" id="chipWeakCount">🔴 Weak: 0</span>
+
+                    <span class="chip chipImprove" id="chipImproveCount">🟠 Needs Improvement: 0</span>
+
+                    <span class="chip chipAverage" id="chipAverageCount">🟡 Average: 0</span>
+
+                    <span class="chip chipStrong" id="chipStrongCount">🟢 Strong: 0</span>
+
+                </div>
+
+            </div>
+
+            <div class="weakAreasList" id="weakAreasList">
+
+                <!-- Filled dynamically by JavaScript -->
+
+            </div>
+
+            <div class="weakAreasFooter" id="weakAreasFooter" style="display:none;">
+
+                <button type="button" class="viewAllTopicsBtn" id="toggleAllTopicsBtn" onclick="toggleAllTopics()">
+
+                    👁️ View All Topics (<span id="allTopicsCount">0</span>)
+
+                </button>
+
+            </div>
+
+        </section>
+
         <!-- ================= DSA ACTIVITY HEATMAP ================= -->
 
-        <section class="heatmapCard">
+        <section class="heatmapCard" id="heatmapSection">
 
             <div class="heatmapHeader">
 
@@ -320,7 +489,7 @@
 
         <!-- ================= DSA REMINDERS ================= -->
 
-        <section class="reminderCard">
+        <section class="reminderCard" id="reminderSection">
 
             <div class="reminderHeader">
 
@@ -371,7 +540,7 @@
 
         <!-- ================= TEAM PROGRESS ================= -->
 
-        <section class="recent">
+        <section class="recent" id="teamSection">
 
             <div class="recentHeader">
 
@@ -458,6 +627,8 @@
             </div>
 
         </footer>
+
+        </main>
 
     </div>
 

@@ -330,10 +330,13 @@ function processAndRenderAll(remoteRows) {
     const postedNumToName = {};
     if (typeof postedQuestions !== "undefined" && typeof leetcodeMap !== "undefined") {
         postedQuestions.forEach(q => {
-            const num = leetcodeMap[q.toLowerCase().trim()];
+            const qName = (typeof getQuestionName === "function")
+                ? getQuestionName(q)
+                : ((typeof q === "object" && q.name) ? q.name : String(q));
+            const num = leetcodeMap[qName.toLowerCase().trim()];
             if (num) {
                 postedNumbers.add(String(num));
-                postedNumToName[String(num)] = q;
+                postedNumToName[String(num)] = qName;
             }
         });
     }
@@ -415,8 +418,14 @@ function processAndRenderAll(remoteRows) {
         localStorage.setItem("dsa_tracker_active_profile", activeProfile);
     }
 
+    // Keep reference for dynamic re-renders
+    lastProcessedMembers = members;
+
     // 1. Render Personal Statistics (My Progress)
     renderMyProgress(members, totalPosted, profileNames);
+
+    // 1.5 Render Weak Areas
+    renderWeakAreas(activeProfile, members);
 
     // 2. Render Activity Heatmap
     renderActivityHeatmap(activeProfile, members);
@@ -436,12 +445,6 @@ function processAndRenderAll(remoteRows) {
 // ============================================
 
 function renderMyProgress(members, totalPosted, profileNames) {
-    const profileSelector = document.getElementById("profileSelector");
-    if (profileSelector && profileNames.length > 0) {
-        profileSelector.innerHTML = profileNames.map(p =>
-            `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
-        ).join("");
-    }
 
     const member = members[activeProfile] || {
         submittedNumbers: new Set(),
@@ -471,7 +474,7 @@ function renderMyProgress(members, totalPosted, profileNames) {
     const streaks = calculateStreaks(member.dates);
     const completionRate = totalPosted > 0 ? Math.round((totalSolved / totalPosted) * 100) : 0;
 
-    // Update DOM
+    // Update stat boxes
     const totalEl = document.getElementById("statTotalSolved");
     const easyEl = document.getElementById("statEasySolved");
     const medEl = document.getElementById("statMediumSolved");
@@ -488,11 +491,29 @@ function renderMyProgress(members, totalPosted, profileNames) {
     if (longStreakEl) longStreakEl.textContent = `${streaks.longest} Days`;
     if (rateEl) rateEl.textContent = `${completionRate}%`;
 
-    // Also populate profile input if empty
-    const profileInput = document.getElementById("profile");
-    if (profileInput && !profileInput.value.trim()) {
-        profileInput.value = activeProfile;
+    // Populate the My Progress section profile selector
+    const profileSelector = document.getElementById("profileSelector");
+    if (profileSelector && profileNames.length > 0) {
+        profileSelector.innerHTML = profileNames.map(p =>
+            `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
+        ).join("");
     }
+
+    // Populate the sidebar profile switcher dropdown
+    const sidebarSelect = document.getElementById("sidebarProfileSelect");
+    if (sidebarSelect && profileNames.length > 0) {
+        sidebarSelect.innerHTML = profileNames.map(p =>
+            `<option value="${p}" ${p === activeProfile ? "selected" : ""}>${p}</option>`
+        ).join("");
+    }
+
+    // Update active profile display in Challenge section
+    const challengeProfileEl = document.getElementById("challengeActiveProfileName");
+    if (challengeProfileEl) challengeProfileEl.textContent = activeProfile;
+
+    // Always sync the hidden profile input used by submitData()
+    const profileInput = document.getElementById("profile");
+    if (profileInput) profileInput.value = activeProfile;
 }
 
 function onProfileSelected(newProfile) {
@@ -500,10 +521,222 @@ function onProfileSelected(newProfile) {
     activeProfile = newProfile;
     localStorage.setItem("dsa_tracker_active_profile", activeProfile);
 
+    // Sync hidden profile input used by submitData()
     const profileInput = document.getElementById("profile");
     if (profileInput) profileInput.value = activeProfile;
 
+    // Sync the My Progress dropdown (if present)
+    const profileSelector = document.getElementById("profileSelector");
+    if (profileSelector) profileSelector.value = activeProfile;
+
+    // Sync the sidebar dropdown
+    const sidebarSelect = document.getElementById("sidebarProfileSelect");
+    if (sidebarSelect) sidebarSelect.value = activeProfile;
+
+    // Update challenge badge immediately
+    const challengeProfileEl = document.getElementById("challengeActiveProfileName");
+    if (challengeProfileEl) challengeProfileEl.textContent = activeProfile;
+
     processAndRenderAll(allSubmissions);
+}
+
+// ============================================
+// 1.5 RENDER WEAK AREAS (PURELY TOPIC BASED)
+// ============================================
+
+let showAllTopics = false;
+let lastProcessedMembers = {};
+
+function toggleAllTopics() {
+    showAllTopics = !showAllTopics;
+    renderWeakAreas(activeProfile, lastProcessedMembers);
+}
+
+function renderWeakAreas(profile, members) {
+    const listEl = document.getElementById("weakAreasList");
+    const footerEl = document.getElementById("weakAreasFooter");
+    const toggleBtn = document.getElementById("toggleAllTopicsBtn");
+    const subtitleEl = document.getElementById("weakAreasSubtitle");
+    const chipWeak = document.getElementById("chipWeakCount");
+    const chipImprove = document.getElementById("chipImproveCount");
+    const chipAverage = document.getElementById("chipAverageCount");
+    const chipStrong = document.getElementById("chipStrongCount");
+
+    if (!listEl) return;
+
+    if (subtitleEl) {
+        subtitleEl.textContent = `Topic proficiency for ${profile} based strictly on submitted vs. posted problems.`;
+    }
+
+    const member = (members && members[profile]) ? members[profile] : {
+        submittedNumbers: new Set(),
+        solvedNames: new Set()
+    };
+
+    // Aggregate posted and submitted problems strictly per topic from postedQuestions
+    const topicStats = {};
+
+    if (typeof postedQuestions !== "undefined" && Array.isArray(postedQuestions)) {
+        postedQuestions.forEach(q => {
+            const qName = (typeof getQuestionName === "function")
+                ? getQuestionName(q)
+                : ((typeof q === "object" && q.name) ? q.name : String(q));
+
+            const topic = (typeof getQuestionTopic === "function")
+                ? getQuestionTopic(q)
+                : ((typeof q === "object" && q.topic) ? q.topic : "General");
+
+            if (!topicStats[topic]) {
+                topicStats[topic] = {
+                    topic,
+                    posted: 0,
+                    submitted: 0,
+                    questions: []
+                };
+            }
+
+            topicStats[topic].posted++;
+            topicStats[topic].questions.push(qName);
+
+            // Determine if the active member has solved/submitted this posted problem
+            const lowerName = qName.toLowerCase().trim();
+            const canonical = (typeof questionAliases !== "undefined" && questionAliases[lowerName])
+                ? questionAliases[lowerName]
+                : lowerName;
+
+            const lcNum = (typeof leetcodeMap !== "undefined") ? leetcodeMap[canonical] : null;
+
+            const isSolved = (lcNum && member.submittedNumbers.has(String(lcNum)))
+                || member.solvedNames.has(canonical)
+                || member.solvedNames.has(lowerName);
+
+            if (isSolved) {
+                topicStats[topic].submitted++;
+            }
+        });
+    }
+
+    // Filter: Only show topics that have at least 3 posted problems
+    const eligibleTopics = Object.values(topicStats).filter(t => t.posted >= 3);
+
+    // Calculate submission rate and classification for each eligible topic
+    // Submission Rate = (Submitted Problems / Posted Problems) × 100
+    // >= 80% → 🟢 Strong
+    // 60%–79% → 🟡 Average
+    // 40%–59% → 🟠 Needs Improvement
+    // Below 40% → 🔴 Weak
+    eligibleTopics.forEach(t => {
+        t.rate = t.posted > 0 ? Math.round((t.submitted / t.posted) * 100) : 0;
+        if (t.rate >= 80) {
+            t.status = "Strong";
+            t.icon = "🟢";
+            t.tagClass = "topicTagStrong";
+            t.fillClass = "progressFillStrong";
+        } else if (t.rate >= 60) {
+            t.status = "Average";
+            t.icon = "🟡";
+            t.tagClass = "topicTagAverage";
+            t.fillClass = "progressFillAverage";
+        } else if (t.rate >= 40) {
+            t.status = "Needs Improvement";
+            t.icon = "🟠";
+            t.tagClass = "topicTagImprove";
+            t.fillClass = "progressFillImprove";
+        } else {
+            t.status = "Weak";
+            t.icon = "🔴";
+            t.tagClass = "topicTagWeak";
+            t.fillClass = "progressFillWeak";
+        }
+    });
+
+    // Summary counts
+    let weakCount = 0;
+    let improveCount = 0;
+    let avgCount = 0;
+    let strongCount = 0;
+
+    eligibleTopics.forEach(t => {
+        if (t.status === "Weak") weakCount++;
+        else if (t.status === "Needs Improvement") improveCount++;
+        else if (t.status === "Average") avgCount++;
+        else if (t.status === "Strong") strongCount++;
+    });
+
+    if (chipWeak) chipWeak.textContent = `🔴 Weak: ${weakCount}`;
+    if (chipImprove) chipImprove.textContent = `🟠 Needs Improvement: ${improveCount}`;
+    if (chipAverage) chipAverage.textContent = `🟡 Average: ${avgCount}`;
+    if (chipStrong) chipStrong.textContent = `🟢 Strong: ${strongCount}`;
+
+    // Sort topics from weakest to strongest based on submission rate
+    eligibleTopics.sort((a, b) => {
+        if (a.rate !== b.rate) return a.rate - b.rate;
+        // Tied rate: sort by posted count descending, then topic name
+        if (b.posted !== a.posted) return b.posted - a.posted;
+        return a.topic.localeCompare(b.topic);
+    });
+
+    // Render list
+    listEl.innerHTML = "";
+
+    if (eligibleTopics.length === 0) {
+        listEl.innerHTML = `
+            <div class="weakAreasEmptyState">
+                ℹ️ Not enough data yet. Topics need at least 3 posted problems to be evaluated for weak areas.
+            </div>
+        `;
+        if (footerEl) footerEl.style.display = "none";
+        return;
+    }
+
+    // Determine topics to display based on showAllTopics toggle
+    const DISPLAY_LIMIT = 4;
+    const shouldShowToggle = eligibleTopics.length > DISPLAY_LIMIT;
+    const displayedTopics = (shouldShowToggle && !showAllTopics)
+        ? eligibleTopics.slice(0, DISPLAY_LIMIT)
+        : eligibleTopics;
+
+    displayedTopics.forEach(t => {
+        // Generate block progress representation: 10 blocks (e.g. ████░░░░░░)
+        const filledBlocks = Math.min(10, Math.max(0, Math.round(t.rate / 10)));
+        const emptyBlocks = 10 - filledBlocks;
+        const blockText = "█".repeat(filledBlocks) + "░".repeat(emptyBlocks);
+
+        const card = document.createElement("div");
+        card.className = "topicCard";
+        card.innerHTML = `
+            <div class="topicCardHeader">
+                <div class="topicTitleArea">
+                    <span class="topicStatusDot">${t.icon}</span>
+                    <span class="topicName">${t.topic}</span>
+                    <span class="topicTag ${t.tagClass}">${t.status}</span>
+                </div>
+                <div class="topicStatsArea">
+                    <span class="topicCountText">${t.submitted} / ${t.posted} submitted</span>
+                    <span class="topicRateBadge">${t.rate}% completion</span>
+                </div>
+            </div>
+            <div class="progressBarContainer">
+                <div class="progressBarTrack" title="${t.topic}: ${t.rate}% completion (${t.submitted}/${t.posted})">
+                    <div class="progressBarFill ${t.fillClass}" style="width: ${t.rate}%;"></div>
+                </div>
+                <span class="progressBarBlockText" aria-hidden="true">${blockText}</span>
+            </div>
+        `;
+        listEl.appendChild(card);
+    });
+
+    // Update toggle button
+    if (footerEl && toggleBtn) {
+        if (shouldShowToggle) {
+            footerEl.style.display = "block";
+            toggleBtn.innerHTML = showAllTopics
+                ? `🔼 Show Less`
+                : `👁️ View All Topics (${eligibleTopics.length})`;
+        } else {
+            footerEl.style.display = "none";
+        }
+    }
 }
 
 // ============================================
@@ -750,10 +983,14 @@ function renderTeamProgress(members, postedNumbers, postedNumToName, lcNumToName
 function updateDashboardMeta() {
     const totalPosted = (typeof postedQuestions !== "undefined") ? postedQuestions.length : 1;
 
-    // Update Day Badge in Hero
+    // Update Day Badge in Hero & Sidebar
     const dayBadge = document.getElementById("currentDayBadge");
     if (dayBadge) {
         dayBadge.innerHTML = `🔥 Day ${totalPosted}`;
+    }
+    const sidebarDayBadge = document.getElementById("sidebarDayBadge");
+    if (sidebarDayBadge) {
+        sidebarDayBadge.innerHTML = `🔥 Day ${totalPosted}`;
     }
 
     // Auto-fill Day field placeholder/default in Submission Form
@@ -764,7 +1001,10 @@ function updateDashboardMeta() {
 
     // Show today's challenge question name
     if (typeof postedQuestions !== "undefined" && postedQuestions.length > 0) {
-        const todayQuestion = postedQuestions[postedQuestions.length - 1];
+        const rawQ = postedQuestions[postedQuestions.length - 1];
+        const todayQuestion = (typeof getQuestionName === "function")
+            ? getQuestionName(rawQ)
+            : ((typeof rawQ === "object" && rawQ.name) ? rawQ.name : String(rawQ));
         const challengeLeftP = document.querySelector(".challengeLeft p");
         if (challengeLeftP && !challengeLeftP.innerHTML.includes("Today's Target")) {
             challengeLeftP.innerHTML = `<strong>Today's Target:</strong> <span style="background:#FFE44D; padding:3px 8px; border-radius:6px; border:2px solid #111; font-weight:800;">${todayQuestion}</span><br>Solve today's problem and submit before the day ends. One problem closer to greatness.`;
@@ -1051,11 +1291,62 @@ if (heroTitle) {
 }
 
 // ============================================
+// SIDEBAR SCROLL SPY
+// ============================================
+
+function initSidebarScrollSpy() {
+    const navLinks = document.querySelectorAll(".sidebarLink");
+    if (!navLinks.length) return;
+
+    const sectionIds = [
+        "heroSection",
+        "challengeSection",
+        "formSection",
+        "progressSection",
+        "weakAreasCard",
+        "heatmapSection",
+        "reminderSection",
+        "teamSection"
+    ];
+
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+    window.addEventListener("scroll", () => {
+        const scrollY = window.scrollY + 140;
+        let currentSectionId = "";
+
+        sections.forEach(sec => {
+            const top = sec.offsetTop;
+            const height = sec.offsetHeight;
+            if (scrollY >= top && scrollY < top + height) {
+                currentSectionId = sec.id;
+            }
+        });
+
+        if (!currentSectionId && sections.length && scrollY < sections[0].offsetTop) {
+            currentSectionId = sections[0].id;
+        }
+
+        if (currentSectionId) {
+            navLinks.forEach(link => {
+                const target = link.getAttribute("data-target") || (link.getAttribute("href") || "").replace("#", "");
+                if (target === currentSectionId) {
+                    link.classList.add("active");
+                } else {
+                    link.classList.remove("active");
+                }
+            });
+        }
+    }, { passive: true });
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 
 window.addEventListener("load", () => {
     loadSubmissions();
     registerServiceWorker();
+    initSidebarScrollSpy();
     setInterval(checkDailyReminder, 60000);
 });
