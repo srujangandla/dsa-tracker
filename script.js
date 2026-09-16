@@ -1,11 +1,65 @@
 // ============================================
-// GOOGLE APPS SCRIPT WEB APP URL
+// ENVIRONMENT VARIABLES & CONFIGURATION (LOADED FROM .env)
 // ============================================
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbztDxQZpQ1VFvqyHgddL_RHvpQL4RE-_tqDQ2iOxsUNR_Z9mp4VQ5wuK2H7BpI0Oqw18Q/exec";
+window.ENV = window.ENV || {};
 
-// Optional VAPID Public Key for Web Push (replace with your server's VAPID key if pushing from backend)
-const VAPID_PUBLIC_KEY = "";
+let WEB_APP_URL = window.ENV.WEB_APP_URL || "";
+let VAPID_PUBLIC_KEY = window.ENV.VAPID_PUBLIC_KEY || "";
+let SHEET_URL = window.ENV.SHEET_URL || "";
+
+function updateConfigBindings() {
+    if (window.ENV.WEB_APP_URL) WEB_APP_URL = window.ENV.WEB_APP_URL;
+    if (window.ENV.VAPID_PUBLIC_KEY !== undefined) VAPID_PUBLIC_KEY = window.ENV.VAPID_PUBLIC_KEY;
+    if (window.ENV.SHEET_URL) SHEET_URL = window.ENV.SHEET_URL;
+
+    const sheetLinkEl = document.getElementById("sheetLink");
+    if (sheetLinkEl) {
+        if (SHEET_URL) {
+            sheetLinkEl.href = SHEET_URL;
+        } else {
+            sheetLinkEl.addEventListener("click", (e) => {
+                if (!SHEET_URL) {
+                    e.preventDefault();
+                    alert("Sheet URL is not configured in .env");
+                }
+            });
+        }
+    }
+}
+
+/**
+ * Loads and parses key-value pairs from .env into window.ENV
+ */
+async function loadEnvConfig() {
+    try {
+        const response = await fetch('.env');
+        if (response.ok) {
+            const text = await response.text();
+            const lines = text.split(/\r?\n/);
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) return;
+                const eqIdx = trimmed.indexOf('=');
+                if (eqIdx !== -1) {
+                    const key = trimmed.slice(0, eqIdx).trim();
+                    let val = trimmed.slice(eqIdx + 1).trim();
+                    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+                        val = val.slice(1, -1);
+                    }
+                    window.ENV[key] = val;
+                }
+            });
+        }
+    } catch (err) {
+        console.warn("Notice: Could not load .env file directly via fetch:", err);
+    }
+
+    updateConfigBindings();
+    return window.ENV;
+}
+
+const envPromise = loadEnvConfig();
 
 // Global In-Memory State
 let allSubmissions = [];
@@ -219,6 +273,11 @@ function calculateStreaks(dateList) {
 // ============================================
 
 async function submitData() {
+    await envPromise;
+    if (!WEB_APP_URL) {
+        return showStatus("⚠️ WEB_APP_URL not configured in .env", "error");
+    }
+
     const profile = document.getElementById("profile").value.trim();
     const problem = document.getElementById("problem").value.trim();
     const day = document.getElementById("day").value.trim();
@@ -292,9 +351,16 @@ async function submitData() {
 // ============================================
 
 function loadSubmissions() {
-    fetch(WEB_APP_URL)
-        .then(response => response.json())
-        .then(data => {
+    envPromise.then(() => {
+        if (!WEB_APP_URL) {
+            console.warn("Notice: WEB_APP_URL is not set in .env.");
+            processAndRenderAll(allSubmissions);
+            return;
+        }
+
+        fetch(WEB_APP_URL)
+            .then(response => response.json())
+            .then(data => {
             allSubmissions = Array.isArray(data) ? data : [];
             // Only clear pending submissions that are already reflected in remote data.
             // This prevents the 4-second refresh from reverting an optimistic UI update
@@ -323,10 +389,9 @@ function loadSubmissions() {
                 table.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#f87171; padding:20px;">⚠️ Failed to load remote data. Showing local session data.</td></tr>`;
             }
             // Fallback: render with pending submissions if any
-            if (localPendingSubmissions.length > 0) {
-                processAndRenderAll([]);
-            }
+            processAndRenderAll(allSubmissions);
         });
+    });
 }
 
 // ============================================
@@ -1442,7 +1507,9 @@ function initSidebarScrollSpy() {
 // INITIALIZATION
 // ============================================
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+    await envPromise;
+    updateConfigBindings();
     loadSubmissions();
     registerServiceWorker();
     initSidebarScrollSpy();
