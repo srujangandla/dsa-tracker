@@ -460,6 +460,7 @@ function processAndRenderAll(remoteRows) {
     // Google Sheets may return timestamps in a degraded format (e.g. 1899-... time-only)
     // that reconstructs to a slightly different time, so the computed lastDate may lag
     // behind the actual latest submission. Fix by checking localStorage.
+    // Also push into member.dates so the activity heatmap and streaks stay in sync.
     try {
         const storedTimes = JSON.parse(localStorage.getItem("dsa_tracker_last_submit_times") || "{}");
         Object.entries(storedTimes).forEach(([profile, isoStr]) => {
@@ -468,6 +469,12 @@ function processAndRenderAll(remoteRows) {
             if (isNaN(storedDate.getTime())) return;
             if (!members[profile].lastDate || storedDate.getTime() > members[profile].lastDate.getTime()) {
                 members[profile].lastDate = storedDate;
+                // Ensure the date is also in the dates array so heatmap / streaks see it
+                const storedDayKey = toLocalDateString(storedDate);
+                const alreadyHasDay = members[profile].dates.some(d => toLocalDateString(d) === storedDayKey);
+                if (!alreadyHasDay) {
+                    members[profile].dates.push(storedDate);
+                }
             }
         });
     } catch (e) { /* ignore */ }
