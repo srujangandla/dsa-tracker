@@ -282,6 +282,15 @@ async function submitData() {
             leetcode_no
         ]);
 
+        // Persist the latest submission time for this profile so lastDate
+        // survives pending-submission dedup and page reloads (Google Sheets
+        // may return timestamps in a degraded format).
+        try {
+            const storedTimes = JSON.parse(localStorage.getItem("dsa_tracker_last_submit_times") || "{}");
+            storedTimes[profile] = nowIso;
+            localStorage.setItem("dsa_tracker_last_submit_times", JSON.stringify(storedTimes));
+        } catch (e) { /* ignore */ }
+
         showStatus("✅ Submitted Successfully!", "success");
 
         // Sync active profile
@@ -446,6 +455,22 @@ function processAndRenderAll(remoteRows) {
             }
         }
     });
+
+    // ── Apply persisted submission timestamps ──
+    // Google Sheets may return timestamps in a degraded format (e.g. 1899-... time-only)
+    // that reconstructs to a slightly different time, so the computed lastDate may lag
+    // behind the actual latest submission. Fix by checking localStorage.
+    try {
+        const storedTimes = JSON.parse(localStorage.getItem("dsa_tracker_last_submit_times") || "{}");
+        Object.entries(storedTimes).forEach(([profile, isoStr]) => {
+            if (!members[profile]) return;
+            const storedDate = new Date(isoStr);
+            if (isNaN(storedDate.getTime())) return;
+            if (!members[profile].lastDate || storedDate.getTime() > members[profile].lastDate.getTime()) {
+                members[profile].lastDate = storedDate;
+            }
+        });
+    } catch (e) { /* ignore */ }
 
     // Ensure custom profiles exist in members
     const customProfiles = getCustomProfiles();
