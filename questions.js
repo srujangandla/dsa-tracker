@@ -209,7 +209,13 @@ const postedQuestions = allQuestions.slice(0, INITIAL_POSTED_COUNT);
 
 // Set the start date for when the NEW future questions will start posting (Format: YYYY-MM-DD)
 // E.g., if set to "2026-08-20", the 38th question will post on that date.
-const FUTURE_START_DATE = "2026-08-21";
+
+
+
+
+
+
+/*const FUTURE_START_DATE = "2026-08-21";
 
 function appendDailyQuestions() {
     const startDate = new Date(`${FUTURE_START_DATE}T08:00:00`);
@@ -232,7 +238,58 @@ function appendDailyQuestions() {
             allQuestions[INITIAL_POSTED_COUNT + i]
         );
     }
+}*/
+
+
+
+
+
+const FUTURE_START_DATE = "2026-08-21";
+
+const PAUSE_START_DATE = "2026-09-20";
+const PAUSE_END_DATE = "2026-09-25";
+
+function appendDailyQuestions() {
+    const startDate = new Date(`${FUTURE_START_DATE}T08:00:00`);
+    const pauseStart = new Date(`${PAUSE_START_DATE}T00:00:00`);
+    const pauseEnd = new Date(`${PAUSE_END_DATE}T23:59:59`);
+    const today = new Date();
+
+    // Don't append before the start date
+    if (today < startDate) return;
+
+    // Pause appending during the specified period
+    if (today >= pauseStart && today <= pauseEnd) {
+        return;
+    }
+
+    const diffTime = today.getTime() - startDate.getTime();
+
+    const daysSinceStart = Math.floor(
+        diffTime / (1000 * 60 * 60 * 24)
+    );
+
+    const questionsToAdd = Math.min(
+        daysSinceStart + 1,
+        allQuestions.length - INITIAL_POSTED_COUNT
+    );
+
+    for (let i = 0; i < questionsToAdd; i++) {
+        postedQuestions.push(
+            allQuestions[INITIAL_POSTED_COUNT + i]
+        );
+    }
 }
+
+appendDailyQuestions();
+
+
+
+
+
+
+
+
 
 // Automatically append the future questions based on today's date
 appendDailyQuestions();
