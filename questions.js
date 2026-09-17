@@ -246,8 +246,8 @@ function appendDailyQuestions() {
 
 const FUTURE_START_DATE = "2026-08-21";
 
-const PAUSE_START_DATE = "2026-09-20";
-const PAUSE_END_DATE = "2026-09-25";
+const PAUSE_START_DATE = "2026-09-18";
+const PAUSE_END_DATE = "2026-09-27";
 
 function appendDailyQuestions() {
     const startDate = new Date(`${FUTURE_START_DATE}T08:00:00`);
