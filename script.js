@@ -311,36 +311,36 @@ function loadSubmissions() {
     fetch(WEB_APP_URL)
         .then(response => response.json())
         .then(data => {
-        allSubmissions = Array.isArray(data) ? data : [];
-        // Only clear pending submissions that are already reflected in remote data.
-        // This prevents the 4-second refresh from reverting an optimistic UI update
-        // when Google Sheets hasn't yet processed the POST.
-        localPendingSubmissions = localPendingSubmissions.filter(pending => {
-            const pProfile = String(pending[0] || "").trim().toLowerCase();
-            const pProblem = String(pending[1] || "").trim().toLowerCase();
-            const pLcNo   = String(pending[6] || "").trim();
-            return !allSubmissions.some(r => {
-                const rProfile = String(r[0] || "").trim().toLowerCase();
-                const rProblem = String(r[1] || "").trim().toLowerCase();
-                const rLcNo   = String(r[6] || "").trim();
-                const profileMatch = rProfile === pProfile;
-                // Match by LeetCode number (preferred) or problem name
-                const problemMatch = (pLcNo && rLcNo && pLcNo === rLcNo)
-                    || rProblem === pProblem;
-                return profileMatch && problemMatch;
+            allSubmissions = Array.isArray(data) ? data : [];
+            // Only clear pending submissions that are already reflected in remote data.
+            // This prevents the 4-second refresh from reverting an optimistic UI update
+            // when Google Sheets hasn't yet processed the POST.
+            localPendingSubmissions = localPendingSubmissions.filter(pending => {
+                const pProfile = String(pending[0] || "").trim().toLowerCase();
+                const pProblem = String(pending[1] || "").trim().toLowerCase();
+                const pLcNo = String(pending[6] || "").trim();
+                return !allSubmissions.some(r => {
+                    const rProfile = String(r[0] || "").trim().toLowerCase();
+                    const rProblem = String(r[1] || "").trim().toLowerCase();
+                    const rLcNo = String(r[6] || "").trim();
+                    const profileMatch = rProfile === pProfile;
+                    // Match by LeetCode number (preferred) or problem name
+                    const problemMatch = (pLcNo && rLcNo && pLcNo === rLcNo)
+                        || rProblem === pProblem;
+                    return profileMatch && problemMatch;
+                });
             });
+            processAndRenderAll(allSubmissions);
+        })
+        .catch(error => {
+            console.error("Failed to load submissions:", error);
+            const table = document.getElementById("submissionTable");
+            if (table) {
+                table.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#f87171; padding:20px;">⚠️ Failed to load remote data. Showing local session data.</td></tr>`;
+            }
+            // Fallback: render with pending submissions if any
+            processAndRenderAll(allSubmissions);
         });
-        processAndRenderAll(allSubmissions);
-    })
-    .catch(error => {
-        console.error("Failed to load submissions:", error);
-        const table = document.getElementById("submissionTable");
-        if (table) {
-            table.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#f87171; padding:20px;">⚠️ Failed to load remote data. Showing local session data.</td></tr>`;
-        }
-        // Fallback: render with pending submissions if any
-        processAndRenderAll(allSubmissions);
-    });
 }
 
 
@@ -386,12 +386,12 @@ function processAndRenderAll(remoteRows) {
     const members = {};
 
     combinedRows.forEach((row, idx) => {
-        const profile     = row[0] ? String(row[0]).trim() : "";
+        const profile = row[0] ? String(row[0]).trim() : "";
         const problemName = row[1] ? String(row[1]).trim() : "";
-        const dayVal      = row[2] ? String(row[2]).trim() : "";
-        const diffVal     = row[3] ? String(row[3]).trim() : "";
-        const timeVal     = row[5];
-        const lcNo        = row[6] ? String(row[6]).trim() : "";
+        const dayVal = row[2] ? String(row[2]).trim() : "";
+        const diffVal = row[3] ? String(row[3]).trim() : "";
+        const timeVal = row[5];
+        const lcNo = row[6] ? String(row[6]).trim() : "";
 
         if (!profile) return;
 
@@ -1096,20 +1096,23 @@ function renderTeamProgress(members, postedNumbers, postedNumToName, lcNumToName
 function updateDashboardMeta() {
     const totalPosted = (typeof postedQuestions !== "undefined") ? postedQuestions.length : 1;
 
+    // Fixed day number — change this manually whenever you want the badge to move
+    const DISPLAY_DAY = 65;
+
     // Update Day Badge in Hero & Sidebar
     const dayBadge = document.getElementById("currentDayBadge");
     if (dayBadge) {
-        dayBadge.innerHTML = `🔥 Day ${totalPosted}`;
+        dayBadge.innerHTML = `🔥 Day ${DISPLAY_DAY}`;
     }
     const sidebarDayBadge = document.getElementById("sidebarDayBadge");
     if (sidebarDayBadge) {
-        sidebarDayBadge.innerHTML = `🔥 Day ${totalPosted}`;
+        sidebarDayBadge.innerHTML = `🔥 Day ${DISPLAY_DAY}`;
     }
 
     // Auto-fill Day field placeholder/default in Submission Form
     const dayInput = document.getElementById("day");
     if (dayInput && !dayInput.value.trim()) {
-        dayInput.placeholder = `Day ${totalPosted}`;
+        dayInput.placeholder = `Day ${DISPLAY_DAY}`;
     }
 
     // Show today's challenge question name
@@ -1148,7 +1151,7 @@ function getReminderPreference() {
     const key = `dsa_reminder_config_${activeProfile}`;
     const stored = localStorage.getItem(key) || localStorage.getItem("dsa_reminder_config_global");
     if (stored) {
-        try { return JSON.parse(stored); } catch (e) {}
+        try { return JSON.parse(stored); } catch (e) { }
     }
     return { enabled: false, time: "20:00", lastRemindedDate: "" };
 }
@@ -1462,4 +1465,4 @@ window.addEventListener("load", () => {
     registerServiceWorker();
     initSidebarScrollSpy();
     setInterval(checkDailyReminder, 60000);
-});
+});
