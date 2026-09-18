@@ -258,16 +258,19 @@ function appendDailyQuestions() {
     // Don't append before the start date
     if (today < startDate) return;
 
-    // Pause appending during the specified period
-    if (today >= pauseStart && today <= pauseEnd) {
-        return;
-    }
+    // During a pause, freeze the count at whatever was posted up to the
+    // day before the pause started — don't return early and lose them all.
+    const effectiveDate = (today >= pauseStart && today <= pauseEnd)
+        ? new Date(pauseStart.getTime() - 1)   // last moment before pause
+        : today;
 
-    const diffTime = today.getTime() - startDate.getTime();
+    const diffTime = effectiveDate.getTime() - startDate.getTime();
 
     const daysSinceStart = Math.floor(
         diffTime / (1000 * 60 * 60 * 24)
     );
+
+    if (daysSinceStart < 0) return;
 
     const questionsToAdd = Math.min(
         daysSinceStart + 1,
@@ -281,17 +284,6 @@ function appendDailyQuestions() {
     }
 }
 
-appendDailyQuestions();
-
-
-
-
-
-
-
-
-
-// Automatically append the future questions based on today's date
 appendDailyQuestions();
 
 // ============================================
