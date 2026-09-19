@@ -69,8 +69,25 @@ function computeRunningMaxDays(rows) {
  * - If timeVal has year 1899 (Google Sheets time-of-day serialization artifact) or raw time string:
  *   Extracts time-of-day and reconstructs calendar date from challenge schedule.
  */
-function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays) {
+function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays, url = "") {
     if (!timeVal) return null;
+
+    // --- MANUAL OVERRIDES FOR KNOWN CORRUPTED DATES ---
+    // Google Sheets erased the dates for these submissions. 
+    // We map the LeetCode submission ID (from the URL) to the correct calendar date.
+    const manualOverrides = {
+        "2145866630": "2026-09-18", // First Bad Version
+        "2146918701": "2026-09-19", // Is Subsequence
+        "2146943178": "2026-09-19"  // Missing Number
+    };
+    
+    if (url) {
+        const match = url.match(/submissions\/(\d+)/);
+        if (match && manualOverrides[match[1]]) {
+            const overrideDate = new Date(`${manualOverrides[match[1]]}T12:00:00`);
+            return overrideDate;
+        }
+    }
 
     // 1. Check for valid modern date
     const dObj = new Date(timeVal);
@@ -99,8 +116,6 @@ function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays) {
     }
 
     // 3. Reconstruct calendar date from the row's own Day number.
-    // Using runningMaxDays was a bug: a later row with a high day number
-    // contaminated earlier rows, mapping Day 65 submissions to Day 67's date.
     const dayMatch = (dayVal || "").match(/\d+/);
     const dayNum = dayMatch ? parseInt(dayMatch[0], 10) : 1;
 
@@ -474,7 +489,9 @@ function processAndRenderAll(remoteRows) {
         if (submitTsCache[cacheKey]) {
             effectiveTimeVal = submitTsCache[cacheKey];
         }
-        const parsedDate = parseSubmissionTimestamp(effectiveTimeVal, dayVal, idx, runningMaxDays);
+        
+        const urlVal = row[4] ? String(row[4]).trim() : "";
+        const parsedDate = parseSubmissionTimestamp(effectiveTimeVal, dayVal, idx, runningMaxDays, urlVal);
         if (parsedDate && !isNaN(parsedDate.getTime())) {
             // Only count each unique problem once per calendar day for the heatmap.
             // Without this, duplicate rows or resubmissions inflate the daily count.
