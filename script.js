@@ -55,17 +55,12 @@ function saveCustomProfiles(profiles) {
 const CHALLENGE_START_DATE = new Date(2026, 6, 15); // Month is 0-indexed: 6 = July
 
 /**
- * Precomputes running maximum day across sheet rows to accurately
- * anchor historical catch-up submissions to their real calendar dates.
+ * @deprecated No longer used — keeping for backward compatibility.
+ * The running-max approach caused later rows with high day numbers to
+ * contaminate earlier rows, mapping them to the wrong calendar date.
  */
 function computeRunningMaxDays(rows) {
-    let maxDay = 1;
-    return rows.map(r => {
-        const dayMatch = (r[2] || "").match(/\d+/);
-        const dayNum = dayMatch ? parseInt(dayMatch[0], 10) : 1;
-        if (dayNum > maxDay) maxDay = dayNum;
-        return maxDay;
-    });
+    return rows.map(() => 0); // returns unused dummy array
 }
 
 /**
@@ -103,13 +98,13 @@ function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays) {
         }
     }
 
-    // 3. Reconstruct calendar date from Day number and sheet progression
+    // 3. Reconstruct calendar date from the row's own Day number.
+    // Using runningMaxDays was a bug: a later row with a high day number
+    // contaminated earlier rows, mapping Day 65 submissions to Day 67's date.
     const dayMatch = (dayVal || "").match(/\d+/);
     const dayNum = dayMatch ? parseInt(dayMatch[0], 10) : 1;
-    const runningMax = (runningMaxDays && runningMaxDays[rowIndex]) ? runningMaxDays[rowIndex] : dayNum;
-    const effectiveDay = Math.max(dayNum, runningMax);
 
-    const calculatedDate = new Date(CHALLENGE_START_DATE.getTime() + (effectiveDay - 1) * 86400000);
+    const calculatedDate = new Date(CHALLENGE_START_DATE.getTime() + (dayNum - 1) * 86400000);
     calculatedDate.setHours(hours, minutes, seconds, 0);
 
     return calculatedDate;
@@ -419,7 +414,10 @@ function processAndRenderAll(remoteRows) {
 
         // Resolve problem identifier
         let problemKey = null;
-        if (lcNo && lcNumToName[lcNo]) {
+        if (lcNo) {
+            // Always register the LeetCode number — even if lcNumToName doesn't have it.
+            // Previously, a valid lcNo missing from lcNumToName was silently dropped,
+            // causing the problem to miss the postedNumbers intersection and show wrong counts.
             member.submittedNumbers.add(lcNo);
             problemKey = "num_" + lcNo;
         } else if (problemName) {
