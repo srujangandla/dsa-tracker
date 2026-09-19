@@ -69,25 +69,8 @@ function computeRunningMaxDays(rows) {
  * - If timeVal has year 1899 (Google Sheets time-of-day serialization artifact) or raw time string:
  *   Extracts time-of-day and reconstructs calendar date from challenge schedule.
  */
-function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays, url = "") {
+function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays) {
     if (!timeVal) return null;
-
-    // --- MANUAL OVERRIDES FOR KNOWN CORRUPTED DATES ---
-    // Google Sheets erased the dates for these submissions. 
-    // We map the LeetCode submission ID (from the URL) to the correct calendar date.
-    const manualOverrides = {
-        "2145866630": "2026-09-18", // First Bad Version
-        "2146918701": "2026-09-19", // Is Subsequence
-        "2146943178": "2026-09-19"  // Missing Number
-    };
-    
-    if (url) {
-        const match = url.match(/submissions\/(\d+)/);
-        if (match && manualOverrides[match[1]]) {
-            const overrideDate = new Date(`${manualOverrides[match[1]]}T12:00:00`);
-            return overrideDate;
-        }
-    }
 
     // 1. Check for valid modern date
     const dObj = new Date(timeVal);
@@ -116,6 +99,8 @@ function parseSubmissionTimestamp(timeVal, dayVal, rowIndex, runningMaxDays, url
     }
 
     // 3. Reconstruct calendar date from the row's own Day number.
+    // Using runningMaxDays was a bug: a later row with a high day number
+    // contaminated earlier rows, mapping Day 65 submissions to Day 67's date.
     const dayMatch = (dayVal || "").match(/\d+/);
     const dayNum = dayMatch ? parseInt(dayMatch[0], 10) : 1;
 
@@ -301,16 +286,6 @@ async function submitData() {
             localStorage.setItem("dsa_tracker_last_submit_times", JSON.stringify(storedTimes));
         } catch (e) { /* ignore */ }
 
-        // Cache per-submission timestamps so we can recover the actual
-        // submission date even when Google Sheets degrades ISO timestamps
-        // to time-only (1899-...) format.  Key: "profile|lcNo|problem".
-        try {
-            const cache = JSON.parse(localStorage.getItem("dsa_tracker_submit_ts_cache") || "{}");
-            const cacheKey = `${profile}|${leetcode_no}|${problem.toLowerCase().trim()}`;
-            cache[cacheKey] = nowIso;
-            localStorage.setItem("dsa_tracker_submit_ts_cache", JSON.stringify(cache));
-        } catch (e) { /* ignore */ }
-
         showStatus("✅ Submitted Successfully!", "success");
 
         // Sync active profile
@@ -414,14 +389,6 @@ function processAndRenderAll(remoteRows) {
     // ── Aggregate per member ──
     const members = {};
 
-    // Pre-read the per-submission timestamp cache (written by submitData).
-    // Used inside the loop to recover actual submission dates when Google
-    // Sheets degrades ISO timestamps to time-only format.
-    let submitTsCache = {};
-    try {
-        submitTsCache = JSON.parse(localStorage.getItem("dsa_tracker_submit_ts_cache") || "{}");
-    } catch (e) { /* ignore */ }
-
     combinedRows.forEach((row, idx) => {
         const profile = row[0] ? String(row[0]).trim() : "";
         const problemName = row[1] ? String(row[1]).trim() : "";
@@ -439,7 +406,6 @@ function processAndRenderAll(remoteRows) {
                 submittedNumbers: new Set(),
                 solvedNames: new Set(),
                 dates: [],
-                seenDateProblem: new Set(), // tracks "dateKey|problemKey" to avoid double-counting in heatmap
                 difficultyMap: new Map() // problemKey -> 'Easy' | 'Medium' | 'Hard'
             };
         }
@@ -478,29 +444,10 @@ function processAndRenderAll(remoteRows) {
             member.difficultyMap.set(problemKey, diff);
         }
 
-        // Parse valid timestamp.
-        // First check the localStorage cache for the original ISO timestamp.
-        // Google Sheets often degrades ISO timestamps to time-only (1899-...)
-        // format, which forces a fallback to Day-number-based date reconstruction.
-        // If the user entered the question's posting Day (not the submission Day),
-        // the heatmap would attribute the submission to the wrong calendar date.
-        let effectiveTimeVal = timeVal;
-        const cacheKey = `${profile}|${lcNo}|${problemName.toLowerCase().trim()}`;
-        if (submitTsCache[cacheKey]) {
-            effectiveTimeVal = submitTsCache[cacheKey];
-        }
-        
-        const urlVal = row[4] ? String(row[4]).trim() : "";
-        const parsedDate = parseSubmissionTimestamp(effectiveTimeVal, dayVal, idx, runningMaxDays, urlVal);
+        // Parse valid timestamp
+        const parsedDate = parseSubmissionTimestamp(timeVal, dayVal, idx, runningMaxDays);
         if (parsedDate && !isNaN(parsedDate.getTime())) {
-            // Only count each unique problem once per calendar day for the heatmap.
-            // Without this, duplicate rows or resubmissions inflate the daily count.
-            const dayKey = toLocalDateString(parsedDate);
-            const dedupKey = dayKey + "|" + (problemKey || problemName.toLowerCase().trim() || idx);
-            if (!member.seenDateProblem.has(dedupKey)) {
-                member.seenDateProblem.add(dedupKey);
-                member.dates.push(parsedDate);
-            }
+            member.dates.push(parsedDate);
             if (!member.lastDate || parsedDate.getTime() > member.lastDate.getTime()) {
                 member.lastDate = parsedDate;
             }
@@ -544,7 +491,6 @@ function processAndRenderAll(remoteRows) {
                 submittedNumbers: new Set(),
                 solvedNames: new Set(),
                 dates: [],
-                seenDateProblem: new Set(),
                 difficultyMap: new Map()
             };
         }
